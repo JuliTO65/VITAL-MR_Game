@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>V.I.T.A.L. - Experiencia Dual Arcade y Realidad Mixta</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2307131f'/%3E%3Ctext x='32' y='42' font-family='monospace' font-size='30' fill='%2335f0d0' text-anchor='middle'%3EV%3C/text%3E%3C/svg%3E" />
+<style>
+  :root{
+    --cyan:#35f0d0;
+    --cyan-dim:#1aa78f;
+    --blue:#2f9bff;
+    --bg:#050d17;
+    --panel:rgba(8,22,36,.78);
+    --panel-border:rgba(53,240,208,.28);
+    --green:#37e07a;
+    --yellow:#ffd23e;
+    --red:#ff4d5e;
+    --text:#e6f6ff;
+    --muted:#8fb4c8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{width:100%;height:100%;overflow:hidden;background:radial-gradient(1200px 800px at 70% -10%,#10324a 0%,var(--bg) 60%);color:var(--text);
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;user-select:none;}
+  #app{position:fixed;inset:0;}
+  canvas{display:block;}
+
+  /* ---------- HUD general ---------- */
+  .glass{background:var(--panel);border:1px solid var(--panel-border);border-radius:14px;
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    box-shadow:0 0 24px rgba(53,240,208,.10),inset 0 0 18px rgba(53,240,208,.05);}
+
+  #topbar{position:fixed;top:12px;left:12px;right:12px;display:flex;gap:10px;align-items:stretch;
+    z-index:20;pointer-events:none;flex-wrap:wrap;}
+  #brand{padding:8px 16px;display:flex;flex-direction:column;justify-content:center;pointer-events:auto;}
+  #brand h1{font-size:15px;letter-spacing:3px;font-weight:800;color:var(--cyan);text-shadow:0 0 12px rgba(53,240,208,.7);}
+  #brand small{font-size:10.5px;color:var(--muted);letter-spacing:1.2px;}
+  .stat{padding:8px 14px;display:flex;flex-direction:column;justify-content:center;min-width:86px;}
+  .stat .k{font-size:10px;letter-spacing:1.6px;color:var(--muted);text-transform:uppercase;}
+  .stat .v{font-size:19px;font-weight:800;font-variant-numeric:tabular-nums;}
+  #statScore .v{color:var(--cyan);}
+  #batteryWrap{padding:8px 14px;min-width:170px;display:flex;flex-direction:column;justify-content:center;gap:5px;}
+  #batteryRow{display:flex;align-items:center;gap:8px;}
+  #batteryShell{flex:1;height:14px;border:2px solid var(--cyan-dim);border-radius:8px;position:relative;overflow:hidden;background:#04121b;}
+  #batteryFill{position:absolute;inset:2px;width:70%;border-radius:5px;
+    background:linear-gradient(90deg,#1fae7d,var(--green));transition:width .25s linear;}
+  #batteryFill::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);
+    animation:shine 2.2s linear infinite;}
+  @keyframes shine{0%{transform:translateX(-100%);}100%{transform:translateX(100%);}}
+  #batteryPct{font-weight:800;font-variant-numeric:tabular-nums;min-width:46px;text-align:right;font-size:14px;}
+  #alignRow{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);}
+  #alignBar{flex:1;height:6px;border-radius:4px;background:#04121b;overflow:hidden;}
+  #alignFill{height:100%;width:0%;background:linear-gradient(90deg,var(--blue),var(--cyan));transition:width .2s;}
+  #modePill{padding:8px 14px;display:flex;flex-direction:column;justify-content:center;font-size:12px;font-weight:700;letter-spacing:1px;}
+  #modePill .arcade{color:var(--cyan);}
+  #modePill .xr{color:var(--yellow);display:none;}
+  body.xr .arcade{display:none;} body.xr .xr{display:inline;}
+
+  /* ---------- Panel de paciente ---------- */
+  #patientPanel{position:fixed;left:12px;top:96px;width:300px;max-width:calc(100vw - 24px);padding:14px;z-index:18;}
+  #patientPanel h2{font-size:12px;letter-spacing:2px;color:var(--cyan);margin-bottom:8px;text-transform:uppercase;}
+  #pName{font-size:18px;font-weight:800;}
+  #pMeta{font-size:12px;color:var(--muted);margin:3px 0 8px;}
+  #pSymptoms{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+  .chip{font-size:11px;padding:3px 9px;border-radius:999px;border:1px solid var(--panel-border);
+    background:rgba(53,240,208,.08);color:#cdeff8;}
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
+  .checklist li{display:flex;align-items:center;gap:9px;font-size:12.5px;padding:7px 10px;border-radius:9px;
+    background:rgba(255,255,255,.03);border:1px solid transparent;color:var(--muted);transition:.25s;}
+  .checklist li .dot{width:10px;height:10px;border-radius:50%;background:#2a4556;box-shadow:inset 0 0 4px #000;}
+  .checklist li.active{color:var(--text);border-color:rgba(53,240,208,.45);background:rgba(53,240,208,.10);}
+  .checklist li.active .dot{background:var(--yellow);box-shadow:0 0 10px var(--yellow);animation:pulse 1s infinite;}
+  .checklist li.done{color:#bff5e6;}
+  .checklist li.done .dot{background:var(--green);box-shadow:0 0 10px var(--green);}
+  .checklist li .val{margin-left:auto;font-weight:700;color:var(--cyan);font-variant-numeric:tabular-nums;}
+  @keyframes pulse{50%{opacity:.45;}}
+
+  #triageBtns{display:flex;flex-direction:column;gap:8px;}
+  .tbtn{border:1px solid;border-radius:10px;padding:10px 8px;font-size:13px;font-weight:800;letter-spacing:.6px;
+    cursor:pointer;color:#fff;background:#0a1824;transition:.18s;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .tbtn .led-dot{width:11px;height:11px;border-radius:50%;}
+  .tbtn.verde{border-color:rgba(55,224,122,.6);} .tbtn.verde .led-dot{background:var(--green);box-shadow:0 0 10px var(--green);}
+  .tbtn.amarillo{border-color:rgba(255,210,62,.6);} .tbtn.amarillo .led-dot{background:var(--yellow);box-shadow:0 0 10px var(--yellow);}
+  .tbtn.rojo{border-color:rgba(255,77,94,.6);} .tbtn.rojo .led-dot{background:var(--red);box-shadow:0 0 10px var(--red);}
+  .tbtn:not(:disabled):hover{transform:translateY(-2px);filter:brightness(1.25);}
+  .tbtn:disabled{opacity:.35;cursor:not-allowed;}
+  #nextBtn{width:100%;margin-top:8px;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:800;letter-spacing:1px;
+    cursor:pointer;color:#04201a;background:linear-gradient(90deg,var(--cyan),#7af9e2);display:none;}
+  #nextBtn:hover{filter:brightness(1.1);}
+
+  /* ---------- Botones laterales ---------- */
+  #sidePanel{position:fixed;right:12px;top:96px;display:flex;flex-direction:column;gap:9px;z-index:20;}
+  .ibtn{pointer-events:auto;border:1px solid var(--panel-border);border-radius:11px;padding:11px 14px;min-width:178px;
+    background:var(--panel);color:var(--text);font-size:12.5px;font-weight:700;letter-spacing:.6px;cursor:pointer;
+    backdrop-filter:blur(12px);display:flex;align-items:center;gap:9px;transition:.18s;text-align:left;}
+  .ibtn:hover{border-color:var(--cyan);box-shadow:0 0 16px rgba(53,240,208,.35);transform:translateX(-3px);}
+  .ibtn .ico{font-size:16px;}
+  #xrBtn{border-color:rgba(255,210,62,.55);background:linear-gradient(135deg,rgba(255,170,20,.16),rgba(8,22,36,.85));}
+  #xrBtn:disabled{opacity:.45;cursor:not-allowed;}
+  #hintBar{position:fixed;bottom:10px;left:50%;transform:translateX(-50%);z-index:18;padding:8px 18px;font-size:11.5px;
+    color:var(--muted);letter-spacing:.6px;white-space:nowrap;max-width:94vw;overflow:hidden;text-overflow:ellipsis;}
+
+  /* ---------- Tooltip / toasts ---------- */
+  #tooltip{position:fixed;z-index:30;pointer-events:none;font-size:12px;font-weight:700;padding:7px 11px;border-radius:9px;
+    background:rgba(4,18,27,.94);border:1px solid var(--cyan);color:#dffff6;display:none;max-width:240px;
+    box-shadow:0 0 18px rgba(53,240,208,.35);}
+  #toastWrap{position:fixed;top:84px;left:50%;transform:translateX(-50%);z-index:40;display:flex;flex-direction:column;
+    gap:8px;align-items:center;pointer-events:none;}
+  .toast{padding:10px 20px;border-radius:999px;font-size:13px;font-weight:700;background:rgba(6,24,36,.94);
+    border:1px solid var(--cyan-dim);box-shadow:0 0 18px rgba(53,240,208,.25);animation:toastIn .3s ease,fadeOut .4s ease 3.1s forwards;}
+  .toast.warn{border-color:var(--yellow);color:#fff3c4;} .toast.crit{border-color:var(--red);color:#ffd6da;}
+  @keyframes toastIn{from{transform:translateY(-14px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+  @keyframes fadeOut{to{opacity:0;transform:translateY(-10px);}}
+
+  /* ---------- Modales ---------- */
+  .modal-overlay{position:fixed;inset:0;z-index:60;background:rgba(2,8,14,.72);backdrop-filter:blur(6px);
+    display:flex;align-items:center;justify-content:center;padding:18px;animation:fadeIn .3s;}
+  @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+  .modal{max-width:620px;width:100%;max-height:88vh;overflow-y:auto;padding:26px;border-radius:18px;}
+  .modal h2{color:var(--cyan);letter-spacing:2px;font-size:20px;margin-bottom:6px;text-shadow:0 0 14px rgba(53,240,208,.5);}
+  .modal .sub{color:var(--muted);font-size:12.5px;margin-bottom:16px;letter-spacing:.8px;}
+  .modal p,.modal li{font-size:13.5px;line-height:1.65;color:#cfe8f4;}
+  .modal ul{margin:10px 0 16px 18px;}
+  .modal .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0;}
+  .infoCard{background:rgba(53,240,208,.06);border:1px solid var(--panel-border);border-radius:12px;padding:12px;}
+  .infoCard b{color:var(--cyan);display:block;margin-bottom:4px;font-size:12.5px;letter-spacing:1px;}
+  .bigBtn{width:100%;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:800;letter-spacing:1.5px;cursor:pointer;
+    color:#04201a;background:linear-gradient(90deg,var(--cyan),#86fbe6);margin-top:10px;}
+  .bigBtn:hover{filter:brightness(1.1);}
+  .bigBtn.ghost{background:transparent;color:var(--cyan);border:1px solid var(--cyan-dim);}
+  .summaryGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0;}
+  .summaryGrid .s{background:rgba(255,255,255,.04);border:1px solid var(--panel-border);border-radius:12px;padding:13px;text-align:center;}
+  .summaryGrid .s .n{font-size:24px;font-weight:800;color:var(--cyan);font-variant-numeric:tabular-nums;}
+  .summaryGrid .s .l{font-size:11px;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;margin-top:3px;}
+  #finalRank{font-size:17px;font-weight:800;text-align:center;margin:6px 0;}
+  .hidden{display:none !important;}
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:860px){
+    #patientPanel{width:248px;top:118px;padding:11px;}
+    #sidePanel{top:auto;bottom:52px;right:10px;}
+    .ibtn{min-width:0;padding:10px 11px;font-size:11.5px;}
+    .stat{min-width:64px;padding:7px 10px;} .stat .v{font-size:16px;}
+    #batteryWrap{min-width:120px;} #brand h1{font-size:12.5px;}
+    #hintBar{font-size:10px;}
+  }
+  @media (max-width:560px){
+    #patientPanel{width:calc(100vw - 20px);top:auto;bottom:46px;max-height:46vh;overflow-y:auto;}
+    #sidePanel{flex-direction:row;bottom:calc(46vh + 54px);right:10px;flex-wrap:wrap;justify-content:flex-end;}
+    .ibtn .ico{font-size:15px;} .ibtn span.lbl{display:none;}
+    .ibtn{min-width:44px;justify-content:center;}
+    #hintBar{display:none;}
+    .modal .grid2{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<!-- BARRA SUPERIOR -->
+<div id="topbar">
+  <div id="brand" class="glass">
+    <h1>V.I.T.A.L.</h1>
+    <small>Voice Integrated Triage &amp; Assessment Local</small>
+  </div>
+  <div class="stat glass" id="statScore"><span class="k">Puntos</span><span class="v" id="scoreVal">0</span></div>
+  <div class="stat glass"><span class="k">Paciente</span><span class="v" id="patientVal">1 / 5</span></div>
+  <div class="stat glass"><span class="k">Tiempo</span><span class="v" id="timeVal">00:00</span></div>
+  <div id="batteryWrap" class="glass">
+    <div id="batteryRow">
+      <span class="k" style="font-size:10px;letter-spacing:1.6px;color:var(--muted)">BATERÍA 18650</span>
+      <span id="batteryPct">70%</span>
+    </div>
+    <div id="batteryShell"><div id="batteryFill"></div></div>
+    <div id="alignRow"><span>☀ SOL</span><div id="alignBar"><div id="alignFill"></div></div></div>
+  </div>
+  <div class="stat glass" id="modePill"><span class="arcade">◉ MODO ARCADE 3D</span><span class="xr">◈ REALIDAD MIXTA</span></div>
+</div>
+
+<!-- PANEL DE PACIENTE -->
+<div id="patientPanel" class="glass">
+  <h2>▶ Paciente en triaje</h2>
+  <div id="pName">—</div>
+  <div id="pMeta">—</div>
+  <div id="pSymptoms"></div>
+  <ul class="checklist">
+    <li id="step-radar"><span class="dot"></span>Radar mmWave (distancia / respiración)<span class="val" id="val-radar"></span></li>
+    <li id="step-ir"><span class="dot"></span>Sensor IR (temperatura)<span class="val" id="val-ir"></span></li>
+    <li id="step-mic"><span class="dot"></span>Micrófono MEMS (análisis de voz)<span class="val" id="val-mic"></span></li>
+  </ul>
+  <div id="triageBtns">
+    <button class="tbtn verde" data-t="verde" disabled><span class="led-dot"></span>VERDE — Estable</button>
+    <button class="tbtn amarillo" data-t="amarillo" disabled><span class="led-dot"></span>AMARILLO — Monitoreo</button>
+    <button class="tbtn rojo" data-t="rojo" disabled><span class="led-dot"></span>ROJO — Alerta Crítica</button>
+  </div>
+  <button id="nextBtn">SIGUIENTE PACIENTE →</button>
+</div>
+
+<!-- BOTONES LATERALES -->
+<div id="sidePanel">
+  <button class="ibtn" id="xrBtn"><span class="ico">🥽</span><span class="lbl">Entrar a Realidad Mixta / AR</span></button>
+  <button class="ibtn" id="muteBtn"><span class="ico">🔊</span><span class="lbl">Silenciar voz</span></button>
+  <button class="ibtn" id="restartBtn"><span class="ico">↻</span><span class="lbl">Reiniciar misión</span></button>
+  <button class="ibtn" id="helpBtn"><span class="ico">?</span><span class="lbl">Ayuda</span></button>
+</div>
+
+<div id="hintBar" class="glass">Arrastra para orbitar · Clic en los sensores para evaluar · Gira las dos alas solares hacia el sol móvil para recargar</div>
+<div id="tooltip"></div>
+<div id="toastWrap"></div>
+
+<!-- MODAL DE INICIO / AYUDA -->
+<div class="modal-overlay" id="introModal">
+  <div class="modal glass">
+    <h2>V.I.T.A.L. — EXPERIENCIA DUAL</h2>
+    <div class="sub">ARCADE 3D INTERACTIVO + REALIDAD MIXTA WEBXR</div>
+    <p>Eres el operador de una estación <b>V.I.T.A.L.</b>, un puesto de triaje médico sin contacto para zonas epidemiológicas. Atiende la cola de pacientes usando los sensores del dispositivo y decide el nivel de alerta antes de que se agote la batería.</p>
+    <div class="grid2">
+      <div class="infoCard"><b>◎ RADAR mmWAVE</b>Mide distancia y frecuencia respiratoria. El OLED muestra la onda de respiración en vivo.</div>
+      <div class="infoCard"><b>◉ SENSOR IR</b>Lee la temperatura corporal sin contacto en tiempo real.</div>
+      <div class="infoCard"><b>🎙 MICRÓFONO / ALTAVOZ</b>Análisis de voz con prompts hablados en español y texto en el OLED.</div>
+      <div class="infoCard"><b>🚦 3 LEDS</b>Verde = estable · Amarillo = monitoreo · Rojo = alerta crítica.</div>
+    </div>
+    <ul>
+      <li><b>Alas solares:</b> arrástralas para girarlas y alinea ambas con el sol en movimiento. Cada panel bien orientado inyecta carga a la batería 18650.</li>
+      <li>Completa las 3 mediciones de cada paciente y elige el triaje correcto para sumar puntos.</li>
+      <li>En dispositivos compatibles, pulsa <b>“Entrar a Realidad Mixta / AR”</b> para atender la estación en tu espacio real con controladores WebXR.</li>
+    </ul>
+    <button class="bigBtn" id="startBtn">INICIAR MISIÓN</button>
+  </div>
+</div>
+
+<!-- MODAL DE RESUMEN -->
+<div class="modal-overlay hidden" id="summaryModal">
+  <div class="modal glass">
+    <h2>INFORME DE MISIÓN</h2>
+    <div class="sub">RESUMEN DE LA JORNADA DE TRIAJE</div>
+    <div id="finalRank"></div>
+    <div class="summaryGrid">
+      <div class="s"><div class="n" id="sumScore">0</div><div class="l">Puntos</div></div>
+      <div class="s"><div class="n" id="sumAcc">0%</div><div class="l">Precisión</div></div>
+      <div class="s"><div class="n" id="sumPatients">0</div><div class="l">Pacientes</div></div>
+      <div class="s"><div class="n" id="sumTime">00:00</div><div class="l">Duración</div></div>
+      <div class="s"><div class="n" id="sumSolar">0 Wh</div><div class="l">E. solar cosechada</div></div>
+      <div class="s"><div class="n" id="sumBattery">0%</div><div class="l">Batería restante</div></div>
+    </div>
+    <button class="bigBtn" id="againBtn">JUGAR DE NUEVO</button>
+    <button class="bigBtn ghost" id="helpAgainBtn">Ver instrucciones</button>
+  </div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { ARButton } from 'three/addons/webxr/ARButton.js';
+import { VRButton } from 'three/addons/webxr/VRButton.js';
+
+/* ============================================================
+   1. RENDERER, ESCENA, CÁMARA Y CONTROLES
+============================================================ */
+const app = document.getElementById('app');
+const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:false, powerPreference:'high-performance' });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.12;
+renderer.xr.enabled = true;
+app.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x050d17);
+scene.fog = new THREE.FogExp2(0x050d17, 0.028);
+
+const camera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 0.05, 120);
+camera.position.set(5.4, 2.8, 7.0);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.minDistance = 3.2;
+controls.maxDistance = 16;
+controls.maxPolarAngle = Math.PI * 0.62;
+controls.target.set(0, 0.1, 0);
+
+/* Luces */
+scene.add(new THREE.HemisphereLight(0x9fd8ff, 0x0a1a26, 0.75));
+const ambient = new THREE.AmbientLight(0xffffff, 0.22);
+scene.add(ambient);
+const sunLight = new THREE.DirectionalLight(0xfff2d8, 1.7);
+sunLight.castShadow = true;
+sunLight.shadow.mapSize.set(1024,1024);
+sunLight.shadow.camera.left=-8; sunLight.shadow.camera.right=8;
+sunLight.shadow.camera.top=8; sunLight.shadow.camera.bottom=-8;
+scene.add(sunLight);
+const rimLight = new THREE.PointLight(0x2f9bff, 0.9, 18);
+rimLight.position.set(-5, 3.5, -4);
+scene.add(rimLight);
+
+/* ============================================================
+   2. ENTORNO: SUELO, PARTÍCULAS Y SOL MÓVIL
+============================================================ */
+const floor = new THREE.Mesh(
+  new THREE.PlaneGeometry(60,60),
+  new THREE.MeshStandardMaterial({ color:0x0a1826, roughness:0.95, metalness:0.1 })
+);
+floor.rotation.x = -Math.PI/2;
+floor.position.y = -1.52;
+floor.receiveShadow = true;
+scene.add(floor);
+
+const grid = new THREE.GridHelper(44, 44, 0x1ad6c2, 0x14324a);
+grid.position.y = -1.50;
+grid.material.transparent = true;
+grid.material.opacity = 0.32;
+scene.add(grid);
+
+/* Partículas de ambiente */
+const pGeo = new THREE.BufferGeometry();
+const pCount = 320, pPos = new Float32Array(pCount*3);
+for(let i=0;i<pCount;i++){
+  pPos[i*3]   = (Math.random()-0.5)*30;
+  pPos[i*3+1] = Math.random()*10 - 1;
+  pPos[i*3+2] = (Math.random()-0.5)*30;
+}
+pGeo.setAttribute('position', new THREE.BufferAttribute(pPos,3));
+const particles = new THREE.Points(pGeo, new THREE.PointsMaterial({ color:0x6fe9ff, size:0.055, transparent:true, opacity:0.55 }));
+scene.add(particles);
+
+/* Sol virtual móvil */
+function makeGlowTexture(){
+  const c = document.createElement('canvas'); c.width=c.height=128;
+  const g = c.getContext('2d');
+  const grad = g.createRadialGradient(64,64,4,64,64,62);
+  grad.addColorStop(0,'rgba(255,244,200,1)');
+  grad.addColorStop(0.25,'rgba(255,190,90,.85)');
+  grad.addColorStop(1,'rgba(255,150,40,0)');
+  g.fillStyle=grad; g.fillRect(0,0,128,128);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+const sunGroup = new THREE.Group();
+const sunMesh = new THREE.Mesh(
+  new THREE.SphereGeometry(0.34, 24, 24),
+  new THREE.MeshBasicMaterial({ color:0xffd27a })
+);
+const sunGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map:makeGlowTexture(), transparent:true, blending:THREE.AdditiveBlending, depthWrite:false }));
+sunGlow.scale.set(2.6,2.6,1);
+sunGroup.add(sunMesh, sunGlow);
+scene.add(sunGroup);
+let sunAngle = 0;
+const SUN_RADIUS = 9.5;
+
+/* ============================================================
+   3. CONSTRUCCIÓN PROCEDURAL DE V.I.T.A.L.
+============================================================ */
+const device = new THREE.Group();
+device.name = 'VITAL';
+scene.add(device);
+
+const MAT = {
+  housing: new THREE.MeshStandardMaterial({ color:0xe8eef5, roughness:0.42, metalness:0.18 }),
+  front:   new THREE.MeshStandardMaterial({ color:0xcfdbe8, roughness:0.5,  metalness:0.12 }),
+  dark:    new THREE.MeshStandardMaterial({ color:0x122330, roughness:0.55, metalness:0.35 }),
+  black:   new THREE.MeshStandardMaterial({ color:0x070d14, roughness:0.7,  metalness:0.2 }),
+  metal:   new THREE.MeshStandardMaterial({ color:0x8fa3b5, roughness:0.3,  metalness:0.85 }),
+  lens:    new THREE.MeshStandardMaterial({ color:0x0b2a44, roughness:0.08, metalness:0.4, emissive:0x0a3a5c, emissiveIntensity:0.6 }),
+};
+function box(w,h,d,mat,x,y,z,parent=device){
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), mat);
+  m.position.set(x,y,z); m.castShadow=true; m.receiveShadow=true; parent.add(m); return m;
+}
+function cyl(rt,rb,h,mat,x,y,z,parent=device,seg=28){
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg), mat);
+  m.position.set(x,y,z); m.castShadow=true; m.receiveShadow=true; parent.add(m); return m;
+}
+function facingCylinder(r, depth, mat, x, y, z, parent=device){
+  const m = cyl(r,r,depth,mat,x,y,z,parent);
+  m.rotation.x = Math.PI/2;
+  return m;
+}
+
+/* Carcasa principal + panel frontal */
+box(4.2, 3.0, 0.7, MAT.housing, 0,0,0);
+box(3.92, 2.72, 0.10, MAT.front, 0,0,0.36);
+const edges = new THREE.LineSegments(
+  new THREE.EdgesGeometry(new THREE.BoxGeometry(4.21,3.01,0.71)),
+  new THREE.LineBasicMaterial({ color:0x27405a, transparent:true, opacity:0.55 })
+);
+device.add(edges);
+
+/* Logotipo superior */
+function makeTextPlane(text, w, h, color='#27607a', font='bold 90px "Segoe UI", sans-serif'){
+  const c = document.createElement('canvas'); c.width=512; c.height=128;
+  const g = c.getContext('2d');
+  g.clearRect(0,0,512,128); g.fillStyle=color; g.font=font; g.textAlign='center'; g.textBaseline='middle';
+  g.fillText(text,256,66);
+  const t = new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace;
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w,h), new THREE.MeshBasicMaterial({ map:t, transparent:true }));
+  return m;
+}
+const logo = makeTextPlane('V.I.T.A.L', 1.5, 0.38);
+logo.position.set(0, 1.28, 0.425);
+device.add(logo);
+
+/* ---------- OLED ---------- */
+box(1.95, 1.22, 0.10, MAT.dark, -0.85, 0.5, 0.42);
+const oledCanvas = document.createElement('canvas');
+oledCanvas.width = 512; oledCanvas.height = 256;
+const octx = oledCanvas.getContext('2d');
+const oledTex = new THREE.CanvasTexture(oledCanvas);
+oledTex.colorSpace = THREE.SRGBColorSpace;
+oledTex.anisotropy = 4;
+const oledScreen = new THREE.Mesh(
+  new THREE.PlaneGeometry(1.72, 0.98),
+  new THREE.MeshBasicMaterial({ map:oledTex })
+);
+oledScreen.position.set(-0.85, 0.5, 0.478);
+device.add(oledScreen);
+const oledGlow = new THREE.PointLight(0x35f0d0, 0.55, 3.2);
+oledGlow.position.set(-0.85,0.5,1.0);
+device.add(oledGlow);
+
+/* ---------- Sensor IR ---------- */
+facingCylinder(0.155, 0.09, MAT.metal, 0.08, 1.05, 0.45);
+facingCylinder(0.10, 0.10, MAT.lens, 0.08, 1.05, 0.49);
+const irRing = new THREE.Mesh(new THREE.TorusGeometry(0.155,0.018,12,32), MAT.dark);
+irRing.position.set(0.08,1.05,0.50); device.add(irRing);
+
+/* ---------- LEDs x3 ---------- */
+const ledDefs = [
+  { key:'verde',    color:0x37e07a, y:0.98 },
+  { key:'amarillo', color:0xffd23e, y:0.58 },
+  { key:'rojo',     color:0xff4d5e, y:0.18 },
+];
+const leds = {};
+for(const d of ledDefs){
+  facingCylinder(0.115, 0.08, MAT.dark, 1.42, d.y, 0.44);
+  const bulb = facingCylinder(0.078, 0.10,
+    new THREE.MeshStandardMaterial({ color:d.color, emissive:d.color, emissiveIntensity:0.12, roughness:0.25 }),
+    1.42, d.y, 0.49);
+  const light = new THREE.PointLight(d.color, 0, 2.4);
+  light.position.set(1.42, d.y, 0.95);
+  device.add(light);
+  leds[d.key] = { bulb, light, color:d.color };
+}
+const ledLabel = makeTextPlane('LED x3', 0.7, 0.2, '#27607a', 'bold 64px "Segoe UI", sans-serif');
+ledLabel.position.set(1.42, -0.12, 0.43);
+device.add(ledLabel);
+
+/* ---------- Radar mmWave (anillos concéntricos) ---------- */
+facingCylinder(0.26, 0.08, MAT.dark, 0.35, -0.92, 0.44);
+for(const r of [0.07, 0.135, 0.205]){
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(r, 0.018, 10, 36),
+    new THREE.MeshStandardMaterial({ color:0x9fb6c8, metalness:0.8, roughness:0.25, emissive:0x1a6f8c, emissiveIntensity:0.25 }));
+  ring.position.set(0.35,-0.92,0.50);
+  device.add(ring);
+}
+facingCylinder(0.045, 0.10, MAT.lens, 0.35, -0.92, 0.50);
+
+/* ---------- Rejillas de altavoz y micrófono (textura procedural) ---------- */
+function makeGrillTexture(){
+  const c = document.createElement('canvas'); c.width=c.height=256;
+  const g = c.getContext('2d');
+  g.fillStyle = '#10202e'; g.beginPath(); g.arc(128,128,126,0,Math.PI*2); g.fill();
+  g.fillStyle = '#050b12';
+  for(let row=-6;row<=6;row++){
+    for(let col=-6;col<=6;col++){
+      const x = 128 + col*17 + (row%2?8.5:0);
+      const y = 128 + row*15;
+      if(Math.hypot(x-128,y-128) < 108){ g.beginPath(); g.arc(x,y,3.4,0,Math.PI*2); g.fill(); }
+    }
+  }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+const grillTex = makeGrillTexture();
+function makeGrill(x,y,r){
+  const m = new THREE.Mesh(new THREE.CircleGeometry(r,40), new THREE.MeshStandardMaterial({ map:grillTex, roughness:0.85 }));
+  m.position.set(x,y,0.485); device.add(m);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(r,0.025,12,40), MAT.metal);
+  ring.position.set(x,y,0.49); device.add(ring);
+  return m;
+}
+makeGrill(-1.28, -0.98, 0.42);   // Altavoz
+makeGrill( 1.42, -0.98, 0.30);   // Micrófono
+
+/* ---------- Puerto USB-C en el lateral izquierdo ---------- */
+const usb = box(0.06, 0.24, 0.52, MAT.black, -2.12, -0.62, 0);
+usb.rotation.z = 0.02;
+
+/* Etiquetas de componentes */
+const compLabels = [
+  { t:'RADAR mmWAVE', x:0.35, y:-1.34, w:1.15 },
+  { t:'ALTAVOZ',      x:-1.28, y:-1.48, w:0.8 },
+  { t:'MICRÓFONO',    x:1.42, y:-1.38, w:0.95 },
+  { t:'SENSOR IR',    x:0.08, y:1.34, w:0.85 },
+];
+for(const l of compLabels){
+  const p = makeTextPlane(l.t, l.w, 0.16, '#33607a', 'bold 56px "Segoe UI", sans-serif');
+  p.position.set(l.x, l.y, 0.43);
+  device.add(p);
+}
+
+/* ---------- Alas solares duales con bisagras ---------- */
+function buildWing(side){ // side: -1 izquierda, +1 derecha
+  const pivot = new THREE.Group();
+  pivot.position.set(side*2.12, 0.35, 0);
+  device.add(pivot);
+
+  // bisagra vertical
+  const hinge = new THREE.Mesh(new THREE.CylinderGeometry(0.09,0.09,0.55,20), MAT.metal);
+  hinge.castShadow = true;
+  pivot.add(hinge);
+  // brazo
+  box(0.45,0.12,0.12,MAT.metal, side*0.24,0,0,pivot);
+
+  const tilt = new THREE.Group();
+  tilt.position.set(side*0.92, 0, 0);
+  pivot.add(tilt);
+
+  const frame = box(1.55, 2.25, 0.08,
+    new THREE.MeshStandardMaterial({ color:0x243a4e, roughness:0.5, metalness:0.6 }),
+    0,0,0,tilt);
+
+  // celdas solares (rejilla 4 x 6)
+  const cellMat = new THREE.MeshStandardMaterial({
+    color:0x0d3b66, roughness:0.25, metalness:0.4,
+    emissive:0x1e90ff, emissiveIntensity:0.32
+  });
+  for(let r=0;r<6;r++){
+    for(let c=0;c<4;c++){
+      const cell = new THREE.Mesh(new THREE.BoxGeometry(0.30,0.30,0.03), cellMat);
+      cell.position.set(-0.57 + c*0.38, -0.86 + r*0.345, 0.055);
+      cell.castShadow = true;
+      tilt.add(cell);
+    }
+  }
+  // normal de referencia (cara frontal +Z)
+  const normalMarker = new THREE.Object3D();
+  normalMarker.position.set(0,0,0.1);
+  tilt.add(normalMarker);
+
+  pivot.userData = { isWing:true, side, tilt, cellMat, alignment:0 };
+  pivot.rotation.y = side * -0.62;
+  tilt.rotation.x = 0.12;
+  return pivot;
+}
+const wingL = buildWing(-1);
+const wingR = buildWing(1);
+
+/* ============================================================
+   4. REGISTRO DE INTERACTIVOS Y RAYCASTING
+============================================================ */
+const interactive = []; // { root, action, label }
+function register(root, action, label){
+  root.userData.action = action;
+  root.userData.label = label;
+  interactive.push(root);
+}
+// zona de clic invisible (las mallas con material invisible también participan en raycast)
+const irHit = new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.2,0.16,20),
+  new THREE.MeshBasicMaterial({ visible:false }));
+irHit.rotation.x = Math.PI/2;
+irHit.position.set(0.08,1.05,0.48);
+device.add(irHit);
+register(irHit,'ir','Sensor IR — clic para medir temperatura corporal');
+
+const radarHit = new THREE.Mesh(new THREE.CylinderGeometry(0.3,0.3,0.16,20),
+  new THREE.MeshBasicMaterial({ visible:false }));
+radarHit.rotation.x = Math.PI/2;
+radarHit.position.set(0.35,-0.92,0.48);
+device.add(radarHit);
+register(radarHit,'radar','Radar mmWave — clic para medir distancia y respiración');
+
+const micHit = new THREE.Mesh(new THREE.CylinderGeometry(0.34,0.34,0.16,20),
+  new THREE.MeshBasicMaterial({ visible:false }));
+micHit.rotation.x = Math.PI/2;
+micHit.position.set(1.42,-0.98,0.48);
+device.add(micHit);
+register(micHit,'mic','Micrófono MEMS — clic para análisis de voz');
+
+const spkHit = new THREE.Mesh(new THREE.CylinderGeometry(0.46,0.46,0.16,20),
+  new THREE.MeshBasicMaterial({ visible:false }));
+spkHit.rotation.x = Math.PI/2;
+spkHit.position.set(-1.28,-0.98,0.48);
+device.add(spkHit);
+register(spkHit,'speaker','Altavoz — clic para repetir el último mensaje de voz');
+
+const usbHit = new THREE.Mesh(new THREE.BoxGeometry(0.14,0.34,0.6),
+  new THREE.MeshBasicMaterial({ visible:false }));
+usbHit.position.set(-2.12,-0.62,0);
+device.add(usbHit);
+register(usbHit,'usb','Puerto USB-C — carga cableada de respaldo (simulación)');
+
+for(const k of Object.keys(leds)){
+  const hit = new THREE.Mesh(new THREE.CylinderGeometry(0.16,0.16,0.16,16),
+    new THREE.MeshBasicMaterial({ visible:false }));
+  hit.rotation.x = Math.PI/2;
+  const y = ledDefs.find(d=>d.key===k).y;
+  hit.position.set(1.42,y,0.48);
+  device.add(hit);
+  register(hit,'led','Indicador LED — estado del triaje: '+k.toUpperCase());
+}
+interactive.push(wingL, wingR);
+
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+let hovered = null;
+const tooltip = document.getElementById('tooltip');
+
+function setPointer(ev){
+  const rect = renderer.domElement.getBoundingClientRect();
+  pointer.x = ((ev.clientX-rect.left)/rect.width)*2 - 1;
+  pointer.y = -((ev.clientY-rect.top)/rect.height)*2 + 1;
+}
+function pickInteractive(){
+  raycaster.setFromCamera(pointer, camera);
+  const hits = raycaster.intersectObjects(interactive, true);
+  for(const h of hits){
+    let o = h.object;
+    while(o && o.userData.action===undefined && !o.userData.isWing && o.parent){ o = o.parent; }
+    if(o && (o.userData.action || o.userData.isWing)) return o;
+  }
+  return null;
+}
+
+/* Arrastre de alas (ratón / táctil) */
+let wingDrag = null;
+let lastPointerX = 0, lastPointerY = 0;
+
+renderer.domElement.addEventListener('pointerdown', (ev)=>{
+  if(renderer.xr.isPresenting) return; // en XR se usan los controladores
+  setPointer(ev);
+  const obj = pickInteractive();
+  if(obj && obj.userData.isWing){
+    wingDrag = obj;
+    lastPointerX = ev.clientX; lastPointerY = ev.clientY;
+    controls.enabled = false;
+    renderer.domElement.style.cursor = 'grabbing';
+    ev.preventDefault();
+  } else if(obj && obj.userData.action){
+    performAction(obj.userData.action);
+  }
+});
+renderer.domElement.addEventListener('pointermove', (ev)=>{
+  if(wingDrag){
+    const dx = ev.clientX - lastPointerX;
+    const dy = ev.clientY - lastPointerY;
+    lastPointerX = ev.clientX; lastPointerY = ev.clientY;
+    wingDrag.rotation.y += dx * 0.011;
+    wingDrag.userData.tilt.rotation.x = THREE.MathUtils.clamp(
+      wingDrag.userData.tilt.rotation.x + dy*0.009, -0.9, 0.9);
+    return;
+  }
+  if(renderer.xr.isPresenting) return;
+  setPointer(ev);
+  const obj = pickInteractive();
+  hovered = obj;
+  if(obj){
+    renderer.domElement.style.cursor = 'pointer';
+    tooltip.style.display = 'block';
+    tooltip.textContent = obj.userData.label || 'Ala solar — arrastra para alinearla con el sol';
+    tooltip.style.left = Math.min(ev.clientX+14, window.innerWidth-260)+'px';
+    tooltip.style.top  = (ev.clientY+14)+'px';
+  } else {
+    renderer.domElement.style.cursor = 'grab';
+    tooltip.style.display = 'none';
+  }
+});
+window.addEventListener('pointerup', ()=>{
+  if(wingDrag){ wingDrag=null; controls.enabled=true; renderer.domElement.style.cursor='grab'; }
+});
+renderer.domElement.addEventListener('contextmenu', e=>e.preventDefault());
+
+/* ============================================================
+   5. WEBXR: BOTÓN DUAL AR/VR Y CONTROLADORES
+============================================================ */
+const xrBtn = document.getElementById('xrBtn');
+let hiddenXRButton = null;
+(async function setupXR(){
+  if(!('xr' in navigator) || !navigator.xr){
+    xrBtn.disabled = true;
+    xrBtn.querySelector('.lbl').textContent = 'WebXR no disponible en este equipo';
+    return;
+  }
+  let arOK=false, vrOK=false;
+  try{ arOK = await navigator.xr.isSessionSupported('immersive-ar'); }catch(e){}
+  try{ vrOK = await navigator.xr.isSessionSupported('immersive-vr'); }catch(e){}
+  if(arOK){
+    hiddenXRButton = ARButton.createButton(renderer, {
+      optionalFeatures:['dom-overlay','local-floor'],
+      domOverlay:{ root:document.body }
+    });
+  } else if(vrOK){
+    hiddenXRButton = VRButton.createButton(renderer);
+  } else {
+    xrBtn.disabled = true;
+    xrBtn.querySelector('.lbl').textContent = 'AR/VR no soportado por este navegador';
+    return;
+  }
+  hiddenXRButton.style.display = 'none';
+  document.body.appendChild(hiddenXRButton);
+})();
+
+xrBtn.addEventListener('click', ()=>{
+  if(!hiddenXRButton){
+    toast('WebXR no está disponible. Puedes jugar en Modo Arcade 3D.', 'warn');
+    return;
+  }
+  hiddenXRButton.click();
+});
+renderer.xr.addEventListener('sessionstart', onXRSessionStart);
+renderer.xr.addEventListener('sessionend', onXRSessionEnd);
+
+function onXRSessionStart(){
+  document.body.classList.add('xr');
+  xrBtn.querySelector('.lbl').textContent = 'Salir de Realidad Mixta';
+  controls.enabled = false;
+  grid.visible = false; floor.visible = false; particles.visible = false;
+  device.scale.setScalar(0.42);
+  device.position.set(0, -0.15, -0.95);
+  toast('Realidad Mixta activa — apunta y pulsa el gatillo para interactuar');
+  speak('Realidad mixta activada. Estación VITAL lista para triaje.');
+}
+function onXRSessionEnd(){
+  document.body.classList.remove('xr');
+  xrBtn.querySelector('.lbl').textContent = 'Entrar a Realidad Mixta / AR';
+  controls.enabled = true;
+  grid.visible = true; floor.visible = true; particles.visible = true;
+  device.scale.setScalar(1);
+  device.position.set(0,0,0);
+  toast('Modo Arcade 3D restaurado');
+}
+
+/* Controladores WebXR con rayo */
+const controllers = [];
+for(let i=0;i<2;i++){
+  const c = renderer.xr.getController(i);
+  const lineGeo = new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-3.2)
+  ]);
+  const line = new THREE.Line(lineGeo, new THREE.LineBasicMaterial({ color:0x35f0d0, transparent:true, opacity:0.8 }));
+  const tip = new THREE.Mesh(new THREE.RingGeometry(0.035,0.06,24),
+    new THREE.MeshBasicMaterial({ color:0x35f0d0, side:THREE.DoubleSide }));
+  tip.position.z = -3.2;
+  c.add(line, tip);
+  c.userData = { wing:null, tip };
+  c.addEventListener('selectstart', ()=>onXRSelect(c,true));
+  c.addEventListener('selectend',   ()=>onXRSelect(c,false));
+  scene.add(c);
+  controllers.push(c);
+}
+function onXRSelect(controller, isStart){
+  const tempRay = new THREE.Raycaster();
+  const origin = new THREE.Vector3(), dir = new THREE.Vector3();
+  controller.getWorldPosition(origin);
+  controller.getWorldDirection(dir).negate(); // el rayo WebXR apunta al eje -Z del controlador
+  tempRay.set(origin, dir);
+  const hits = tempRay.intersectObjects(interactive, true);
+  let target = null;
+  for(const h of hits){
+    let o = h.object;
+    while(o && o.userData.action===undefined && !o.userData.isWing && o.parent){ o=o.parent; }
+    if(o && (o.userData.action || o.userData.isWing)){ target=o; break; }
+  }
+  if(isStart){
+    if(target && target.userData.isWing){
+      controller.userData.wing = target;
+    } else if(target && target.userData.action){
+      performAction(target.userData.action);
+    }
+  } else {
+    controller.userData.wing = null;
+  }
+}
+function updateXRWingDrag(){
+  if(!renderer.xr.isPresenting) return;
+  const localDir = new THREE.Vector3();
+  const worldQuat = new THREE.Quaternion();
+  for(const c of controllers){
+    const wing = c.userData.wing;
+    if(!wing) continue;
+    device.getWorldQuaternion(worldQuat);
+    c.getWorldDirection(localDir).negate().applyQuaternion(worldQuat.invert());
+    // la normal del panel es (sin θ, 0, cos θ) respecto al pivote → θ = atan2(x, z)
+    wing.rotation.y = Math.atan2(localDir.x, localDir.z);
+    wing.userData.tilt.rotation.x = THREE.MathUtils.clamp(-localDir.y*0.9, -0.9, 0.9);
+  }
+}
+
+/* ============================================================
+   6. AUDIO: PITOS WebAudio + VOZ EN ESPAÑOL
+============================================================ */
+let audioCtx = null;
+let muted = false;
+let lastPrompt = '';
+function ensureAudio(){
+  if(!audioCtx){
+    try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){}
+  }
+  if(audioCtx && audioCtx.state==='suspended') audioCtx.resume();
+}
+function beep(freq=880, dur=0.12, type='sine', gainV=0.12){
+  if(!audioCtx) return;
+  const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+  o.type=type; o.frequency.value=freq;
+  g.gain.setValueAtTime(gainV, audioCtx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime+dur);
+  o.connect(g).connect(audioCtx.destination);
+  o.start(); o.stop(audioCtx.currentTime+dur);
+}
+function triageSound(key){
+  if(!audioCtx) return;
+  if(key==='verde'){ beep(660,.12); setTimeout(()=>beep(880,.16),120); }
+  else if(key==='amarillo'){ beep(520,.14); setTimeout(()=>beep(520,.14),170); }
+  else { beep(300,.18,'sawtooth',.14); setTimeout(()=>beep(220,.28,'sawtooth',.14),180); }
+}
+let esVoice = null;
+function loadVoices(){
+  if(!('speechSynthesis' in window)) return;
+  const vs = window.speechSynthesis.getVoices();
+  esVoice = vs.find(v=>/^es[-_](CO|MX|ES)/i.test(v.lang)) || vs.find(v=>v.lang && v.lang.toLowerCase().startsWith('es')) || null;
+}
+if('speechSynthesis' in window){
+  loadVoices();
+  window.speechSynthesis.onvoiceschanged = loadVoices;
+}
+function speak(text){
+  lastPrompt = text;
+  if(muted || !('speechSynthesis' in window)) return;
+  try{
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang='es-CO'; if(esVoice) u.voice = esVoice;
+    u.rate=1.04; u.pitch=1.0;
+    window.speechSynthesis.speak(u);
+  }catch(e){}
+}
+document.getElementById('muteBtn').addEventListener('click', (e)=>{
+  ensureAudio();
+  muted = !muted;
+  const btn = e.currentTarget;
+  btn.querySelector('.ico').textContent = muted ? '🔇' : '🔊';
+  btn.querySelector('.lbl').textContent = muted ? 'Activar voz' : 'Silenciar voz';
+  if(muted && 'speechSynthesis' in window) window.speechSynthesis.cancel();
+  else speak('Voz activada. Estación VITAL en línea.');
+});
+
+/* ============================================================
+   7. LÓGICA DEL JUEGO
+============================================================ */
+const NAMES = ['María Fernández','Carlos Rivas','Lina Torres','Jorge Medina','Ana Beltrán',
+  'Diego Paredes','Lucía Gómez','Andrés Salazar','Valeria Ruiz','Esteban Niño'];
+const SYMPTOM_POOL = ['Fiebre','Tos seca','Dificultad respiratoria','Dolor de cabeza','Fatiga',
+  'Pérdida de olfato','Dolor de garganta','Escalofríos','Náuseas','Congestión nasal'];
+const QUEUE_SIZE = 5;
+
+const game = {
+  state:'intro',          // intro | playing | between | summary | off
+  patients:[],
+  index:0,
+  score:0,
+  correctCount:0,
+  answered:0,
+  steps:{ radar:false, ir:false, mic:false },
+  measuring:{ radar:0, ir:0, mic:0 },   // timestamp de fin, 0 = inactivo
+  readings:{ distance:0, breath:0, temp:0, spo2:0 },
+  activeLed:null,
+  battery:70,
+  solarHarvested:0,
+  startTime:0,
+  missionMs:0,
+  triageDone:false,
+};
+
+function rnd(a,b){ return a + Math.random()*(b-a); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function makePatient(i){
+  let temp, breath;
+  const roll = Math.random();
+  if(roll < 0.34){ temp = rnd(36.0,37.4); breath = Math.round(rnd(10,18)); }       // sano
+  else if(roll < 0.7){ temp = rnd(37.8,38.6); breath = Math.round(rnd(18,24)); }   // alerta amarilla
+  else { temp = rnd(38.6,40.2); breath = Math.round(rnd(24,31)); }                 // crítica
+  // redondear ANTES de clasificar para que el triaje coincida siempre con los valores mostrados
+  temp = +temp.toFixed(1);
+  const symptoms = [];
+  const n = 2 + Math.floor(Math.random()*2);
+  while(symptoms.length < n){
+    const s = pick(SYMPTOM_POOL);
+    if(!symptoms.includes(s)) symptoms.push(s);
+  }
+  if(temp >= 38.5 && !symptoms.includes('Fiebre')) symptoms[0]='Fiebre';
+  if(breath >= 24 && !symptoms.includes('Dificultad respiratoria')) symptoms.push('Dificultad respiratoria');
+  const correct =
+    (temp >= 38.5 || breath >= 26) ? 'rojo' :
+    (temp >= 37.8 || breath >= 21 || symptoms.includes('Dificultad respiratoria')) ? 'amarillo' : 'verde';
+  return {
+    id:'A-0'+(i+1),
+    name: NAMES[i % NAMES.length],
+    age: Math.round(rnd(19,78)),
+    symptoms,
+    temp,
+    breath,
+    distance:+rnd(0.42,1.05).toFixed(2),
+    spo2: Math.round(rnd(90,99)),
+    correct,
+  };
+}
+function buildQueue(){
+  game.patients = [];
+  for(let i=0;i<QUEUE_SIZE;i++) game.patients.push(makePatient(i));
+}
+function currentPatient(){ return game.patients[game.index]; }
+
+function resetSteps(){
+  game.steps = { radar:false, ir:false, mic:false };
+  game.measuring = { radar:0, ir:0, mic:0 };
+  game.triageDone = false;
+  setLED(null);
+  for(const k of ['radar','ir','mic']){
+    document.getElementById('step-'+k).className='';
+    document.getElementById('val-'+k).textContent='';
+  }
+  document.querySelectorAll('.tbtn').forEach(b=>b.disabled=true);
+  document.getElementById('nextBtn').style.display='none';
+}
+function loadPatient(){
+  resetSteps();
+  const p = currentPatient();
+  document.getElementById('pName').textContent = p.name;
+  document.getElementById('pMeta').textContent = `ID ${p.id} · ${p.age} años`;
+  document.getElementById('pSymptoms').innerHTML =
+    p.symptoms.map(s=>`<span class="chip">${s}</span>`).join('');
+  document.getElementById('patientVal').textContent = `${game.index+1} / ${QUEUE_SIZE}`;
+  toast(`Paciente ${p.id}: acérquese a la estación V.I.T.A.L.`);
+  speak(`Paciente ${p.id}. Por favor acérquese a la estación y permanezca quieto.`);
+}
+
+function canAct(){
+  ensureAudio();
+  if(game.state==='intro'){ toast('Inicia la misión para operar la estación.','warn'); return false; }
+  if(game.state==='summary'){ return false; }
+  if(game.battery <= 0){ toast('Batería agotada — alinea las alas solares con el sol para recargar.','crit'); return false; }
+  if(game.triageDone){ toast('Triaje completado — avanza al siguiente paciente.','warn'); return false; }
+  return true;
+}
+function drainBattery(pct){
+  game.battery = Math.max(0, game.battery - pct);
+}
+
+/* Acciones de sensores */
+function performAction(action){
+  switch(action){
+    case 'radar': startRadar(); break;
+    case 'ir': startIR(); break;
+    case 'mic': startMic(); break;
+    case 'speaker':
+      ensureAudio();
+      if(lastPrompt){ speak(lastPrompt); beep(740,.08); }
+      else { speak('Estación VITAL en línea. Lista para iniciar el triaje.'); }
+      break;
+    case 'usb':
+      ensureAudio(); beep(500,.1);
+      toast('Puerto USB-C: carga cableada de respaldo (simulación).','warn');
+      break;
+    case 'led':
+      toast('LED: '+({verde:'VERDE — paciente estable',amarillo:'AMARILLO — monitoreo',rojo:'ROJO — alerta crítica'}[game.activeLed] || 'sin alerta activa'));
+      break;
+  }
+}
+function startRadar(){
+  if(!canAct()) return;
+  if(game.steps.radar){ toast('El radar ya completó la medición.'); return; }
+  drainBattery(3);
+  game.measuring.radar = performance.now()+1900;
+  document.getElementById('step-radar').className='active';
+  beep(1200,.09); setTimeout(()=>beep(1400,.09),200);
+  speak('Midiendo distancia y frecuencia respiratoria con radar de ondas milimétricas.');
+}
+function startIR(){
+  if(!canAct()) return;
+  if(game.steps.ir){ toast('La temperatura ya fue registrada.'); return; }
+  drainBattery(3);
+  game.measuring.ir = performance.now()+2100;
+  document.getElementById('step-ir').className='active';
+  beep(980,.1); setTimeout(()=>beep(1180,.12),250);
+  speak('Midiendo temperatura corporal. Mantenga la frente cerca del sensor infrarrojo.');
+}
+function startMic(){
+  if(!canAct()) return;
+  if(game.steps.mic){ toast('El análisis de voz ya fue realizado.'); return; }
+  drainBattery(4);
+  game.measuring.mic = performance.now()+2600;
+  document.getElementById('step-mic').className='active';
+  beep(620,.08); setTimeout(()=>beep(760,.08),180); setTimeout(()=>beep(920,.1),360);
+  speak('Análisis de voz en curso. Responda al cuestionario de síntomas, por favor.');
+}
+function checkMeasurements(now){
+  const p = currentPatient();
+  if(game.measuring.radar && now >= game.measuring.radar && !game.steps.radar){
+    game.steps.radar = true; game.measuring.radar=0;
+    game.readings.distance = p.distance; game.readings.breath = p.breath;
+    document.getElementById('step-radar').className='done';
+    document.getElementById('val-radar').textContent = `${p.distance} m · ${p.breath} rpm`;
+    toast(`Radar: distancia ${p.distance} m · respiración ${p.breath} rpm`);
+  }
+  if(game.measuring.ir && now >= game.measuring.ir && !game.steps.ir){
+    game.steps.ir = true; game.measuring.ir=0;
+    game.readings.temp = p.temp;
+    document.getElementById('step-ir').className='done';
+    document.getElementById('val-ir').textContent = `${p.temp.toFixed(1)} °C`;
+    toast(`Temperatura registrada: ${p.temp.toFixed(1)} °C`);
+  }
+  if(game.measuring.mic && now >= game.measuring.mic && !game.steps.mic){
+    game.steps.mic = true; game.measuring.mic=0;
+    game.readings.spo2 = p.spo2;
+    document.getElementById('step-mic').className='done';
+    document.getElementById('val-mic').textContent = `SpO2 ${p.spo2}%`;
+    toast(`Voz analizada · saturación estimada ${p.spo2}%`);
+    speak(`Análisis completo. Saturación de oxígeno estimada, ${p.spo2} por ciento.`);
+  }
+  if(game.steps.radar && game.steps.ir && game.steps.mic && !game.triageDone){
+    document.querySelectorAll('.tbtn').forEach(b=>b.disabled=false);
+    if(!game._triagePrompted){
+      game._triagePrompted = true;
+      toast('Evaluación completa — seleccione el nivel de triaje.','warn');
+      speak('Evaluación completa. Seleccione el nivel de triaje.');
+    }
+  }
+}
+
+/* LEDs */
+function setLED(key){
+  game.activeLed = key;
+  for(const k of Object.keys(leds)){
+    const L = leds[k];
+    L.bulb.material.emissiveIntensity = (k===key) ? 2.6 : 0.12;
+    L.light.intensity = (k===key) ? 1.6 : 0;
+  }
+}
+
+/* Triaje */
+document.querySelectorAll('.tbtn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    if(!canAct() || game.triageDone) return;
+    const choice = btn.dataset.t;
+    const p = currentPatient();
+    game.triageDone = true;
+    game.answered++;
+    setLED(p.correct);
+    triageSound(p.correct);
+    document.querySelectorAll('.tbtn').forEach(b=>b.disabled=true);
+    if(choice === p.correct){
+      const bonus = Math.max(0, 40 - Math.floor((performance.now()-game._patientStart)/250));
+      const gained = 100 + bonus;
+      game.score += gained;
+      game.correctCount++;
+      toast(`✔ Correcto (+${gained} pts) — triaje ${p.correct.toUpperCase()}`);
+      speak(`Triaje ${labelTriage(p.correct)}. ${voiceTriage(p.correct)}`);
+    } else {
+      game.score += 15;
+      toast(`✘ El triaje correcto era ${p.correct.toUpperCase()} (+15 participación)`, 'crit');
+      speak(`Atención. El triaje correcto es ${labelTriage(p.correct)}. ${voiceTriage(p.correct)}`);
+    }
+    document.getElementById('scoreVal').textContent = game.score;
+    document.getElementById('nextBtn').style.display='block';
+    document.getElementById('nextBtn').textContent =
+      (game.index === QUEUE_SIZE-1) ? 'FINALIZAR MISIÓN ✓' : 'SIGUIENTE PACIENTE →';
+  });
+});
+function labelTriage(k){ return ({verde:'verde, paciente estable',amarillo:'amarillo, monitoreo',rojo:'rojo, alerta crítica'})[k]; }
+function voiceTriage(k){
+  return ({
+    verde:'Continúe con el siguiente paciente.',
+    amarillo:'Mantenga al paciente en observación.',
+    rojo:'Active el protocolo de emergencia de inmediato.'
+  })[k];
+}
+
+document.getElementById('nextBtn').addEventListener('click', ()=>{
+  ensureAudio();
+  if(game.index === QUEUE_SIZE-1){ finishMission(); return; }
+  game.index++;
+  game._triagePrompted = false;
+  game._patientStart = performance.now();
+  loadPatient();
+});
+
+/* Inicio / reinicio / fin */
+function startMission(){
+  buildQueue();
+  game.state='playing';
+  game.index=0; game.score=0; game.correctCount=0; game.answered=0;
+  game.battery=70; game.solarHarvested=0;
+  game.startTime=performance.now(); game.missionMs=0;
+  game._triagePrompted=false;
+  game._patientStart=performance.now();
+  document.getElementById('scoreVal').textContent='0';
+  document.getElementById('summaryModal').classList.add('hidden');
+  document.getElementById('introModal').classList.add('hidden');
+  loadPatient();
+  ensureAudio();
+  beep(700,.1); setTimeout(()=>beep(990,.14),120);
+  speak('Misión iniciada. Bienvenido, operador de la estación VITAL.');
+}
+function finishMission(){
+  game.state='summary';
+  game.missionMs = performance.now()-game.startTime;
+  const acc = game.answered ? Math.round(game.correctCount/game.answered*100) : 0;
+  document.getElementById('sumScore').textContent = game.score;
+  document.getElementById('sumAcc').textContent = acc+'%';
+  document.getElementById('sumPatients').textContent = game.correctCount+' / '+QUEUE_SIZE;
+  document.getElementById('sumTime').textContent = fmtTime(game.missionMs);
+  document.getElementById('sumSolar').textContent = (game.solarHarvested*0.35).toFixed(1)+' Wh';
+  document.getElementById('sumBattery').textContent = Math.round(game.battery)+'%';
+  const rank = acc>=90 ? '🏆 RANGO: COMANDANTE DE TRIAGE — ejecución impecable'
+    : acc>=70 ? '🩺 RANGO: OPERADOR CONFIABLE — buen trabajo de campo'
+    : '⚠ RANGO: APRENDIZ — repasa los protocolos y reintenta';
+  document.getElementById('finalRank').textContent = rank;
+  document.getElementById('summaryModal').classList.remove('hidden');
+  speak('Misión finalizada. Informe de resultados disponible en pantalla.');
+}
+function fmtTime(ms){
+  const s = Math.floor(ms/1000);
+  return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+}
+document.getElementById('startBtn').addEventListener('click', startMission);
+document.getElementById('againBtn').addEventListener('click', startMission);
+document.getElementById('restartBtn').addEventListener('click', ()=>{
+  ensureAudio();
+  if(game.state==='intro') return;
+  startMission();
+  toast('Misión reiniciada');
+});
+document.getElementById('helpBtn').addEventListener('click', ()=>{
+  document.getElementById('introModal').classList.remove('hidden');
+});
+document.getElementById('helpAgainBtn').addEventListener('click', ()=>{
+  document.getElementById('summaryModal').classList.add('hidden');
+  document.getElementById('introModal').classList.remove('hidden');
+});
+
+/* Toasts */
+function toast(msg, type=''){
+  const wrap = document.getElementById('toastWrap');
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(()=>el.remove(), 3700);
+}
+
+/* ============================================================
+   8. OLED: RENDER FOSFORO VERDE-CIAN
+============================================================ */
+const waveData = new Array(80).fill(0);
+let micBars = new Array(28).fill(4);
+function drawOLED(now){
+  const g = octx;
+  g.fillStyle = '#03140f';
+  g.fillRect(0,0,512,256);
+  g.strokeStyle = 'rgba(53,240,208,.35)';
+  g.lineWidth = 3;
+  g.strokeRect(6,6,500,244);
+
+  g.fillStyle = '#46ffd2';
+  g.font = 'bold 20px "Courier New", monospace';
+  g.textBaseline = 'alphabetic';
+  const p = currentPatient();
+  const header = game.state==='intro' ? 'V.I.T.A.L  EN ESPERA' : `V.I.T.A.L  PACIENTE: ${p.id}`;
+  g.fillText(header, 18, 32);
+  g.fillStyle = 'rgba(70,255,210,.65)';
+  g.font = '13px "Courier New", monospace';
+  g.fillText(game.state==='intro' ? 'SISTEMA INACTIVO' : `TRIAJE ${game.index+1}/${QUEUE_SIZE}`, 360, 32);
+
+  if(game.state==='intro'){
+    g.fillStyle='#46ffd2'; g.font='bold 22px "Courier New", monospace';
+    g.fillText('> INICIAR MISION', 40, 110);
+    g.font='15px "Courier New", monospace'; g.fillStyle='rgba(70,255,210,.8)';
+    g.fillText('Presiona INICIAR MISIÓN en el panel', 40, 145);
+    g.fillText('para desplegar el puesto de triaje.', 40, 168);
+  } else {
+    // ----- Radar / respiración -----
+    g.fillStyle='rgba(70,255,210,.7)'; g.font='bold 14px "Courier New", monospace';
+    g.fillText('RADAR mmWAVE', 18, 58);
+    if(game.steps.radar || game.measuring.radar){
+      const target = p.breath;
+      const phase = now*0.004*(target/14);
+      waveData.shift();
+      waveData.push(Math.sin(phase)*26 + (Math.random()-0.5)*3);
+      g.strokeStyle='#46ffd2'; g.lineWidth=2; g.beginPath();
+      for(let i=0;i<waveData.length;i++){
+        const x = 18 + i*4.4, y = 96 + waveData[i];
+        i?g.lineTo(x,y):g.moveTo(x,y);
+      }
+      g.stroke();
+      g.fillStyle='#46ffd2'; g.font='bold 15px "Courier New", monospace';
+      if(game.measuring.radar){
+        g.fillText('Escaneando...', 240, 92);
+      } else {
+        g.fillText(`DIST ${p.distance}m  RESP ${target}rpm`, 220, 92);
+      }
+    } else {
+      g.fillStyle='rgba(70,255,210,.4)'; g.font='13px "Courier New", monospace';
+      g.fillText('-- sin medición --', 24, 96);
+    }
+
+    // ----- IR / temperatura -----
+    g.fillStyle='rgba(70,255,210,.7)'; g.font='bold 14px "Courier New", monospace';
+    g.fillText('SENSOR IR', 18, 138);
+    if(game.measuring.ir){
+      const prog = 1 - (game.measuring.ir-now)/2100;
+      const v = 35 + (p.temp-35)*THREE.MathUtils.clamp(prog,0,1);
+      g.fillStyle='#46ffd2'; g.font='bold 30px "Courier New", monospace';
+      g.fillText(v.toFixed(1)+' °C', 24, 172);
+    } else if(game.steps.ir){
+      g.fillStyle = p.temp>=38.5 ? '#ff6b78' : p.temp>=37.8 ? '#ffd23e' : '#46ffd2';
+      g.font='bold 30px "Courier New", monospace';
+      g.fillText(p.temp.toFixed(1)+' °C', 24, 172);
+    } else {
+      g.fillStyle='rgba(70,255,210,.4)'; g.font='13px "Courier New", monospace';
+      g.fillText('-- °C --', 24, 170);
+    }
+
+    // ----- Voz / SpO2 -----
+    g.fillStyle='rgba(70,255,210,.7)'; g.font='bold 14px "Courier New", monospace';
+    g.fillText('VOZ / SpO2', 270, 138);
+    if(game.measuring.mic){
+      micBars = micBars.map(()=> 6 + Math.random()*30);
+    } else if(game.steps.mic){
+      micBars = micBars.map(v=> v + (4-v)*0.1);
+    }
+    for(let i=0;i<micBars.length;i++){
+      const h = game.steps.mic && !game.measuring.mic ? 5 : micBars[i];
+      g.fillStyle = game.measuring.mic ? '#7af9e2' : 'rgba(70,255,210,.55)';
+      g.fillRect(272+i*7.4, 168-h, 5, h);
+    }
+    if(game.steps.mic){
+      g.fillStyle='#46ffd2'; g.font='bold 17px "Courier New", monospace';
+      g.fillText(`SpO2 ${p.spo2}%`, 272, 196);
+    }
+
+    // ----- Estado de triaje -----
+    g.font='bold 15px "Courier New", monospace';
+    if(game.triageDone){
+      const c = p.correct;
+      g.fillStyle = c==='rojo' ? '#ff6b78' : c==='amarillo' ? '#ffd23e' : '#46ffd2';
+      g.fillText('TRIAJE: '+c.toUpperCase()+'  '+(c==='rojo'?'ALERTA CRITICA':c==='amarillo'?'MONITOREO':'ESTABLE'), 18, 218);
+    } else {
+      g.fillStyle='rgba(70,255,210,.55)';
+      g.fillText('Esperando decision de triaje...', 18, 218);
+    }
+  }
+
+  // ----- Pie: batería + LED -----
+  g.strokeStyle='rgba(70,255,210,.7)'; g.lineWidth=2;
+  g.strokeRect(392, 222, 70, 20);
+  g.fillRect(462, 228, 6, 8);
+  const bw = Math.max(0, Math.min(64, game.battery/100*64));
+  g.fillStyle = game.battery<20 ? '#ff6b78' : '#46ffd2';
+  g.fillRect(395, 225, bw, 14);
+  g.fillStyle='#46ffd2'; g.font='bold 13px "Courier New", monospace';
+  g.fillText(Math.round(game.battery)+'%', 404, 237);
+  g.fillStyle = game.activeLed==='rojo' ? '#ff6b78' : game.activeLed==='amarillo' ? '#ffd23e' : game.activeLed ? '#46ffd2' : 'rgba(70,255,210,.5)';
+  g.fillText('LED: '+(game.activeLed ? game.activeLed.toUpperCase() : '---'), 18, 238);
+
+  // líneas de escaneo
+  g.fillStyle='rgba(0,0,0,.16)';
+  for(let y=0;y<256;y+=4) g.fillRect(0,y,512,1);
+  oledTex.needsUpdate = true;
+}
+
+/* ============================================================
+   9. BUCLE PRINCIPAL
+============================================================ */
+const clock = new THREE.Clock();
+const tmpV1 = new THREE.Vector3(), tmpV2 = new THREE.Vector3(), tmpN = new THREE.Vector3();
+let oledFrame = 0;
+
+function updateSolar(dt){
+  // órbita del sol
+  sunAngle += dt * 0.075;
+  sunGroup.position.set(
+    Math.cos(sunAngle)*SUN_RADIUS,
+    3.6 + Math.sin(sunAngle*0.55)*1.6,
+    Math.sin(sunAngle)*SUN_RADIUS
+  );
+  sunLight.position.copy(sunGroup.position);
+
+  let totalAlign = 0;
+  for(const wing of [wingL, wingR]){
+    // el propio grupo tilt orienta su eje +Z hacia la cara frontal del panel
+    const normalSrc = wing.userData.tilt;
+    normalSrc.getWorldDirection(tmpN);
+    tmpV1.copy(sunGroup.position).sub(normalSrc.getWorldPosition(tmpV2)).normalize();
+    const align = Math.max(0, tmpN.dot(tmpV1));
+    wing.userData.alignment = align;
+    wing.userData.cellMat.emissiveIntensity = 0.32 + align*1.6;
+    totalAlign += align;
+    if((game.state==='playing' || game.state==='off') && game.battery<100){
+      const charge = align * 5.2 * dt;
+      game.battery = Math.min(100, game.battery + charge);
+      game.solarHarvested += charge;
+    }
+  }
+  const pct = Math.round(totalAlign/2*100);
+  document.getElementById('alignFill').style.width = pct+'%';
+  return pct;
+}
+
+function updateBattery(dt){
+  if(game.state!=='playing') return;
+  game.battery = Math.max(0, game.battery - dt*1.15);
+  if(game.battery <= 0 && game.state!=='off'){
+    game.state='off';
+    toast('¡Sistema apagado! Recarga con las alas solares (mín. 12%).','crit');
+    speak('Batería agotada. Reposicione los paneles solares.');
+  }
+  if(game.state==='off' && game.battery >= 12){
+    game.state='playing';
+    toast('Energía restablecida — misión en curso.');
+    speak('Energía restablecida. Continuamos con el triaje.');
+  }
+}
+
+function updateLEDs(now){
+  for(const k of Object.keys(leds)){
+    const L = leds[k];
+    if(k===game.activeLed){
+      const p = 1.9 + Math.sin(now*0.006)*0.9;
+      L.bulb.material.emissiveIntensity = p;
+      L.light.intensity = 1.1 + Math.sin(now*0.006)*0.5;
+    }
+  }
+}
+
+function updateHUD(now){
+  document.getElementById('batteryFill').style.width = game.battery+'%';
+  document.getElementById('batteryPct').textContent = Math.round(game.battery)+'%';
+  const fill = document.getElementById('batteryFill');
+  fill.style.background = game.battery<20
+    ? 'linear-gradient(90deg,#8a1f2b,var(--red))'
+    : game.battery<45
+      ? 'linear-gradient(90deg,#a07a1c,var(--yellow))'
+      : 'linear-gradient(90deg,#1fae7d,var(--green))';
+  if(game.state==='playing' || game.state==='off'){
+    document.getElementById('timeVal').textContent = fmtTime(now-game.startTime);
+  }
+}
+
+renderer.setAnimationLoop(()=>{
+  const dt = Math.min(clock.getDelta(), 0.05);
+  const now = performance.now();
+
+  if(!renderer.xr.isPresenting) controls.update();
+  particles.rotation.y += dt*0.02;
+  updateSolar(dt);
+  updateBattery(dt);
+  updateLEDs(now);
+  updateXRWingDrag();
+  if(game.state==='playing' || game.state==='off') checkMeasurements(now);
+  if((oledFrame++ % 2)===0) drawOLED(now);
+  updateHUD(now);
+
+  renderer.render(scene, camera);
+});
+
+window.addEventListener('resize', ()=>{
+  camera.aspect = window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+</script>
+</body>
+</html>
