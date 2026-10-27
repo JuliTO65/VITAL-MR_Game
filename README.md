@@ -1,9 +1,10 @@
 # VITAL-MR_Game
 
-**V.I.T.A.L. — Experiencia Dual Arcade y Realidad Mixta**
+**V.I.T.A.L. — Experiencia Dual Arcade y Realidad Mixta (v2)**
 
 Aplicación interactiva 3D / WebXR en un único archivo (`index.html`) para el puesto de
-triaje médico sin contacto **V.I.T.A.L.** (*Voice Integrated Triage & Assessment Local*).
+triaje médico sin contacto **V.I.T.A.L.** (*Voice Integrated Triage & Assessment Local*),
+ambientada dentro de una carpa médica de campaña.
 
 ## Modos de experiencia
 
@@ -13,22 +14,40 @@ triaje médico sin contacto **V.I.T.A.L.** (*Voice Integrated Triage & Assessmen
   *“Entrar a Realidad Mixta / AR”* que inicia una sesión espacial WebXR
   (`immersive-ar` con respaldo `immersive-vr`) con controladores de rayo.
 
-## Mecánicas
+## Entorno
 
-- **Radar mmWave:** distancia y frecuencia respiratoria animadas en el OLED.
-- **Sensor IR:** lectura de temperatura corporal en tiempo real.
-- **Micrófono MEMS / altavoz:** análisis de voz, *prompts* hablados en español
-  (Web Speech API) y pitos WebAudio, con texto en el OLED.
-- **3 LEDs (Verde / Amarillo / Rojo):** estado del triaje
-  (Estable / Monitoreo / Alerta Crítica).
-- **Alas solares duales:** arrastra y gira los paneles para alinearlos con el sol
-  virtual en movimiento y recargar la batería 18650.
-- **Sistema arcade:** puntuación, cola de 5 pacientes, medidor de batería,
-  alineación solar e informe final de misión.
+Carpa de campaña modelada con primitivas de Three.js: paredes y techo de lona con
+textura procedural, camilla plegable, poste de suero, caja de suministros, cruz médica,
+mesa de trabajo, lámpara colgante, polvo en suspensión y un rayo de sol que atraviesa
+la entrada siguiendo la órbita solar.
 
-Toda la interfaz, diálogos, voces y HUD están en español. El dispositivo V.I.T.A.L.
-se genera de forma procedimental con primitivas básicas de Three.js
-(cajas, cilindros, toroides, círculos y grupos).
+## Mecánicas v2
+
+- **Radar mmWave con proximidad automática:** detecta al paciente que se acerca,
+  despierta la estación y entrega distancia + frecuencia respiratoria con onda en el OLED.
+- **Sensor IR:** temperatura sin contacto. El calor de la carpa desplaza la línea base;
+  el botón **“Calibrar Temp Ambiental”** (también físico, en la cara superior del equipo)
+  restablece la medición exacta.
+- **Diálogo de voz conversacional (español):** el micrófono inicia 3 preguntas de triaje;
+  el jugador selecciona (y escucha) la respuesta del paciente. El análisis acústico
+  estima la **disnea** y una confianza. El hardware no tiene sensor de SpO2: no se generan
+  lecturas de saturación.
+- **Ruido ambiental:** picos periódicos de generador/viento (WebAudio, ruido marrón).
+  Con ruido alto el análisis de voz se bloquea hasta activar **“Anular Ruido”**
+  (filtro pasa-bajos + atenuación).
+- **3 LEDs (Verde / Amarillo / Rojo):** resultado del triaje
+  (Estable / Monitoreo / Alerta Crítica) según temperatura + disnea + respuestas.
+- **Alas solares duales:** el sol completa su órbita en 105 s. La carga es estrictamente
+  angular (`eficiencia = alineación²`) y por panel; sin seguimiento activo la batería
+  18650 se agota.
+- **Cola de mensajes:** cada mensaje del OLED permanece mínimo 3,5 s y la voz sintetizada
+  hace cola sin cortarse ni solaparse.
+- **Sistema arcade:** puntuación (triaje + aciertos de diálogo + bono de velocidad),
+  cola de 5 pacientes, medidor de batería, alineación solar e informe final de guardia.
+
+Toda la interfaz, diálogos, voces y HUD están en español. El dispositivo y el entorno se
+generan de forma procedimental con primitivas básicas de Three.js
+(cajas, cilindros, toroides, círculos, conos y grupos).
 
 ## Arquitectura
 

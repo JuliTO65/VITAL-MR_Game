@@ -7,77 +7,84 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2307131f'/%3E%3Ctext x='32' y='42' font-family='monospace' font-size='30' fill='%2335f0d0' text-anchor='middle'%3EV%3C/text%3E%3C/svg%3E" />
 <style>
   :root{
-    --cyan:#35f0d0;
-    --cyan-dim:#1aa78f;
-    --blue:#2f9bff;
-    --bg:#050d17;
-    --panel:rgba(8,22,36,.78);
-    --panel-border:rgba(53,240,208,.28);
-    --green:#37e07a;
-    --yellow:#ffd23e;
-    --red:#ff4d5e;
-    --text:#e6f6ff;
-    --muted:#8fb4c8;
+    --cyan:#35f0d0; --cyan-dim:#1aa78f; --blue:#2f9bff;
+    --bg:#10160e; --panel:rgba(10,26,24,.82); --panel-border:rgba(53,240,208,.28);
+    --green:#37e07a; --yellow:#ffd23e; --red:#ff4d5e; --orange:#ff9d3c;
+    --text:#eaf7ef; --muted:#93b3a6;
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-  html,body{width:100%;height:100%;overflow:hidden;background:radial-gradient(1200px 800px at 70% -10%,#10324a 0%,var(--bg) 60%);color:var(--text);
+  html,body{width:100%;height:100%;overflow:hidden;background:#10160e;color:var(--text);
     font-family:"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;user-select:none;}
   #app{position:fixed;inset:0;}
   canvas{display:block;}
 
-  /* ---------- HUD general ---------- */
   .glass{background:var(--panel);border:1px solid var(--panel-border);border-radius:14px;
     backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
     box-shadow:0 0 24px rgba(53,240,208,.10),inset 0 0 18px rgba(53,240,208,.05);}
 
-  #topbar{position:fixed;top:12px;left:12px;right:12px;display:flex;gap:10px;align-items:stretch;
-    z-index:20;pointer-events:none;flex-wrap:wrap;}
-  #brand{padding:8px 16px;display:flex;flex-direction:column;justify-content:center;pointer-events:auto;}
+  /* ---------- Barra superior ---------- */
+  #topbar{position:fixed;top:12px;left:12px;right:12px;display:flex;gap:10px;align-items:stretch;z-index:20;flex-wrap:wrap;}
+  #brand{padding:8px 16px;display:flex;flex-direction:column;justify-content:center;}
   #brand h1{font-size:15px;letter-spacing:3px;font-weight:800;color:var(--cyan);text-shadow:0 0 12px rgba(53,240,208,.7);}
-  #brand small{font-size:10.5px;color:var(--muted);letter-spacing:1.2px;}
-  .stat{padding:8px 14px;display:flex;flex-direction:column;justify-content:center;min-width:86px;}
-  .stat .k{font-size:10px;letter-spacing:1.6px;color:var(--muted);text-transform:uppercase;}
-  .stat .v{font-size:19px;font-weight:800;font-variant-numeric:tabular-nums;}
+  #brand small{font-size:10.5px;color:var(--muted);letter-spacing:1.1px;}
+  .stat{padding:8px 14px;display:flex;flex-direction:column;justify-content:center;min-width:82px;}
+  .stat .k{font-size:10px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;}
+  .stat .v{font-size:18px;font-weight:800;font-variant-numeric:tabular-nums;}
   #statScore .v{color:var(--cyan);}
-  #batteryWrap{padding:8px 14px;min-width:170px;display:flex;flex-direction:column;justify-content:center;gap:5px;}
+  #batteryWrap{padding:8px 14px;min-width:172px;display:flex;flex-direction:column;justify-content:center;gap:5px;}
   #batteryRow{display:flex;align-items:center;gap:8px;}
-  #batteryShell{flex:1;height:14px;border:2px solid var(--cyan-dim);border-radius:8px;position:relative;overflow:hidden;background:#04121b;}
-  #batteryFill{position:absolute;inset:2px;width:70%;border-radius:5px;
-    background:linear-gradient(90deg,#1fae7d,var(--green));transition:width .25s linear;}
-  #batteryFill::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);
-    animation:shine 2.2s linear infinite;}
+  #batteryShell{flex:1;height:14px;border:2px solid var(--cyan-dim);border-radius:8px;position:relative;overflow:hidden;background:#041210;}
+  #batteryFill{position:absolute;inset:2px;width:75%;border-radius:5px;background:linear-gradient(90deg,#1fae7d,var(--green));transition:width .25s linear;}
+  #batteryFill::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);animation:shine 2.2s linear infinite;}
   @keyframes shine{0%{transform:translateX(-100%);}100%{transform:translateX(100%);}}
-  #batteryPct{font-weight:800;font-variant-numeric:tabular-nums;min-width:46px;text-align:right;font-size:14px;}
+  #batteryPct{font-weight:800;font-variant-numeric:tabular-nums;min-width:44px;text-align:right;font-size:14px;}
   #alignRow{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);}
-  #alignBar{flex:1;height:6px;border-radius:4px;background:#04121b;overflow:hidden;}
-  #alignFill{height:100%;width:0%;background:linear-gradient(90deg,var(--blue),var(--cyan));transition:width .2s;}
+  #alignBar{flex:1;height:6px;border-radius:4px;background:#041210;overflow:hidden;}
+  #alignFill{height:100%;width:0%;background:linear-gradient(90deg,var(--orange),var(--yellow));transition:width .2s;}
   #modePill{padding:8px 14px;display:flex;flex-direction:column;justify-content:center;font-size:12px;font-weight:700;letter-spacing:1px;}
-  #modePill .arcade{color:var(--cyan);}
-  #modePill .xr{color:var(--yellow);display:none;}
+  #modePill .arcade{color:var(--cyan);} #modePill .xr{color:var(--yellow);display:none;}
   body.xr .arcade{display:none;} body.xr .xr{display:inline;}
 
+  /* ---------- Avisos ambientales ---------- */
+  #envChips{position:fixed;top:84px;left:50%;transform:translateX(-50%);z-index:19;display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+  .echip{padding:8px 16px;border-radius:999px;font-size:12.5px;font-weight:800;letter-spacing:.6px;display:none;
+    background:rgba(20,12,6,.9);border:1px solid;animation:blink 1s infinite;}
+  .echip.noise{color:#ffd9a8;border-color:var(--orange);} .echip.heat{color:#ffc1c8;border-color:var(--red);}
+  .echip.show{display:block;}
+  @keyframes blink{50%{opacity:.55;}}
+
   /* ---------- Panel de paciente ---------- */
-  #patientPanel{position:fixed;left:12px;top:96px;width:300px;max-width:calc(100vw - 24px);padding:14px;z-index:18;}
+  #patientPanel{position:fixed;left:12px;top:96px;width:312px;max-width:calc(100vw - 24px);padding:14px;z-index:18;max-height:calc(100vh - 112px);overflow-y:auto;}
   #patientPanel h2{font-size:12px;letter-spacing:2px;color:var(--cyan);margin-bottom:8px;text-transform:uppercase;}
   #pName{font-size:18px;font-weight:800;}
   #pMeta{font-size:12px;color:var(--muted);margin:3px 0 8px;}
   #pSymptoms{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
-  .chip{font-size:11px;padding:3px 9px;border-radius:999px;border:1px solid var(--panel-border);
-    background:rgba(53,240,208,.08);color:#cdeff8;}
-  .checklist{list-style:none;display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
+  .chip{font-size:11px;padding:3px 9px;border-radius:999px;border:1px solid var(--panel-border);background:rgba(53,240,208,.08);color:#cdefe6;}
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:6px;margin-bottom:10px;}
   .checklist li{display:flex;align-items:center;gap:9px;font-size:12.5px;padding:7px 10px;border-radius:9px;
     background:rgba(255,255,255,.03);border:1px solid transparent;color:var(--muted);transition:.25s;}
-  .checklist li .dot{width:10px;height:10px;border-radius:50%;background:#2a4556;box-shadow:inset 0 0 4px #000;}
+  .checklist li .dot{width:10px;height:10px;border-radius:50%;background:#2a4540;box-shadow:inset 0 0 4px #000;flex:none;}
   .checklist li.active{color:var(--text);border-color:rgba(53,240,208,.45);background:rgba(53,240,208,.10);}
   .checklist li.active .dot{background:var(--yellow);box-shadow:0 0 10px var(--yellow);animation:pulse 1s infinite;}
   .checklist li.done{color:#bff5e6;}
   .checklist li.done .dot{background:var(--green);box-shadow:0 0 10px var(--green);}
-  .checklist li .val{margin-left:auto;font-weight:700;color:var(--cyan);font-variant-numeric:tabular-nums;}
+  .checklist li .val{margin-left:auto;font-weight:700;color:var(--cyan);font-variant-numeric:tabular-nums;font-size:11.5px;text-align:right;}
   @keyframes pulse{50%{opacity:.45;}}
 
+  /* Q&A conversacional */
+  #qaBox{border:1px solid rgba(255,157,60,.45);border-radius:12px;padding:11px;margin-bottom:10px;background:rgba(255,157,60,.07);}
+  #qaProgress{font-size:10.5px;letter-spacing:1.4px;color:var(--orange);font-weight:800;margin-bottom:6px;}
+  #qaQuestion{font-size:13.5px;font-weight:700;line-height:1.45;margin-bottom:9px;color:#ffe8cc;}
+  #qaOptions{display:flex;flex-direction:column;gap:7px;}
+  .qopt{text-align:left;border:1px solid var(--panel-border);background:rgba(6,22,20,.9);color:var(--text);
+    border-radius:10px;padding:9px 11px;font-size:12.5px;line-height:1.4;cursor:pointer;transition:.16s;display:flex;gap:8px;align-items:flex-start;}
+  .qopt:hover{border-color:var(--orange);background:rgba(255,157,60,.14);transform:translateX(2px);}
+  .qopt .play{flex:none;font-size:14px;}
+  #qaAnalyzing{font-size:12.5px;color:var(--cyan);font-weight:700;padding:6px 2px;display:none;}
+
   #triageBtns{display:flex;flex-direction:column;gap:8px;}
-  .tbtn{border:1px solid;border-radius:10px;padding:10px 8px;font-size:13px;font-weight:800;letter-spacing:.6px;
-    cursor:pointer;color:#fff;background:#0a1824;transition:.18s;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .tbtn{border:1px solid;border-radius:10px;padding:10px 8px;font-size:13px;font-weight:800;letter-spacing:.6px;cursor:pointer;
+    color:#fff;background:#0a1814;transition:.18s;display:flex;align-items:center;justify-content:center;gap:8px;}
   .tbtn .led-dot{width:11px;height:11px;border-radius:50%;}
   .tbtn.verde{border-color:rgba(55,224,122,.6);} .tbtn.verde .led-dot{background:var(--green);box-shadow:0 0 10px var(--green);}
   .tbtn.amarillo{border-color:rgba(255,210,62,.6);} .tbtn.amarillo .led-dot{background:var(--yellow);box-shadow:0 0 10px var(--yellow);}
@@ -90,36 +97,35 @@
 
   /* ---------- Botones laterales ---------- */
   #sidePanel{position:fixed;right:12px;top:96px;display:flex;flex-direction:column;gap:9px;z-index:20;}
-  .ibtn{pointer-events:auto;border:1px solid var(--panel-border);border-radius:11px;padding:11px 14px;min-width:178px;
-    background:var(--panel);color:var(--text);font-size:12.5px;font-weight:700;letter-spacing:.6px;cursor:pointer;
-    backdrop-filter:blur(12px);display:flex;align-items:center;gap:9px;transition:.18s;text-align:left;}
+  .ibtn{border:1px solid var(--panel-border);border-radius:11px;padding:11px 14px;min-width:196px;background:var(--panel);
+    color:var(--text);font-size:12.5px;font-weight:700;letter-spacing:.4px;cursor:pointer;backdrop-filter:blur(12px);
+    display:flex;align-items:center;gap:9px;transition:.18s;text-align:left;}
   .ibtn:hover{border-color:var(--cyan);box-shadow:0 0 16px rgba(53,240,208,.35);transform:translateX(-3px);}
   .ibtn .ico{font-size:16px;}
-  #xrBtn{border-color:rgba(255,210,62,.55);background:linear-gradient(135deg,rgba(255,170,20,.16),rgba(8,22,36,.85));}
+  .ibtn.on{border-color:var(--cyan);background:rgba(53,240,208,.18);box-shadow:0 0 16px rgba(53,240,208,.4);}
+  #xrBtn{border-color:rgba(255,210,62,.55);background:linear-gradient(135deg,rgba(255,170,20,.16),rgba(10,26,24,.9));}
   #xrBtn:disabled{opacity:.45;cursor:not-allowed;}
   #hintBar{position:fixed;bottom:10px;left:50%;transform:translateX(-50%);z-index:18;padding:8px 18px;font-size:11.5px;
-    color:var(--muted);letter-spacing:.6px;white-space:nowrap;max-width:94vw;overflow:hidden;text-overflow:ellipsis;}
+    color:var(--muted);letter-spacing:.5px;white-space:nowrap;max-width:94vw;overflow:hidden;text-overflow:ellipsis;}
 
   /* ---------- Tooltip / toasts ---------- */
   #tooltip{position:fixed;z-index:30;pointer-events:none;font-size:12px;font-weight:700;padding:7px 11px;border-radius:9px;
-    background:rgba(4,18,27,.94);border:1px solid var(--cyan);color:#dffff6;display:none;max-width:240px;
-    box-shadow:0 0 18px rgba(53,240,208,.35);}
-  #toastWrap{position:fixed;top:84px;left:50%;transform:translateX(-50%);z-index:40;display:flex;flex-direction:column;
-    gap:8px;align-items:center;pointer-events:none;}
-  .toast{padding:10px 20px;border-radius:999px;font-size:13px;font-weight:700;background:rgba(6,24,36,.94);
-    border:1px solid var(--cyan-dim);box-shadow:0 0 18px rgba(53,240,208,.25);animation:toastIn .3s ease,fadeOut .4s ease 3.1s forwards;}
+    background:rgba(4,18,16,.95);border:1px solid var(--cyan);color:#dffff6;display:none;max-width:250px;box-shadow:0 0 18px rgba(53,240,208,.35);}
+  #toastWrap{position:fixed;top:120px;left:50%;transform:translateX(-50%);z-index:40;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;}
+  .toast{padding:10px 20px;border-radius:999px;font-size:13px;font-weight:700;background:rgba(6,24,22,.95);
+    border:1px solid var(--cyan-dim);box-shadow:0 0 18px rgba(53,240,208,.25);animation:toastIn .3s ease,fadeOut .4s ease 3.4s forwards;}
   .toast.warn{border-color:var(--yellow);color:#fff3c4;} .toast.crit{border-color:var(--red);color:#ffd6da;}
   @keyframes toastIn{from{transform:translateY(-14px);opacity:0;}to{transform:translateY(0);opacity:1;}}
   @keyframes fadeOut{to{opacity:0;transform:translateY(-10px);}}
 
   /* ---------- Modales ---------- */
-  .modal-overlay{position:fixed;inset:0;z-index:60;background:rgba(2,8,14,.72);backdrop-filter:blur(6px);
+  .modal-overlay{position:fixed;inset:0;z-index:60;background:rgba(4,10,8,.75);backdrop-filter:blur(6px);
     display:flex;align-items:center;justify-content:center;padding:18px;animation:fadeIn .3s;}
   @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
-  .modal{max-width:620px;width:100%;max-height:88vh;overflow-y:auto;padding:26px;border-radius:18px;}
+  .modal{max-width:640px;width:100%;max-height:88vh;overflow-y:auto;padding:26px;border-radius:18px;}
   .modal h2{color:var(--cyan);letter-spacing:2px;font-size:20px;margin-bottom:6px;text-shadow:0 0 14px rgba(53,240,208,.5);}
   .modal .sub{color:var(--muted);font-size:12.5px;margin-bottom:16px;letter-spacing:.8px;}
-  .modal p,.modal li{font-size:13.5px;line-height:1.65;color:#cfe8f4;}
+  .modal p,.modal li{font-size:13.5px;line-height:1.65;color:#d2ece2;}
   .modal ul{margin:10px 0 16px 18px;}
   .modal .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0;}
   .infoCard{background:rgba(53,240,208,.06);border:1px solid var(--panel-border);border-radius:12px;padding:12px;}
@@ -130,27 +136,27 @@
   .bigBtn.ghost{background:transparent;color:var(--cyan);border:1px solid var(--cyan-dim);}
   .summaryGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0;}
   .summaryGrid .s{background:rgba(255,255,255,.04);border:1px solid var(--panel-border);border-radius:12px;padding:13px;text-align:center;}
-  .summaryGrid .s .n{font-size:24px;font-weight:800;color:var(--cyan);font-variant-numeric:tabular-nums;}
-  .summaryGrid .s .l{font-size:11px;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;margin-top:3px;}
-  #finalRank{font-size:17px;font-weight:800;text-align:center;margin:6px 0;}
+  .summaryGrid .s .n{font-size:23px;font-weight:800;color:var(--cyan);font-variant-numeric:tabular-nums;}
+  .summaryGrid .s .l{font-size:10.5px;color:var(--muted);letter-spacing:1.1px;text-transform:uppercase;margin-top:3px;}
+  #finalRank{font-size:16.5px;font-weight:800;text-align:center;margin:6px 0;line-height:1.4;}
   .hidden{display:none !important;}
 
-  /* ---------- Responsive ---------- */
   @media (max-width:860px){
-    #patientPanel{width:248px;top:118px;padding:11px;}
+    #patientPanel{width:252px;top:118px;padding:11px;}
     #sidePanel{top:auto;bottom:52px;right:10px;}
     .ibtn{min-width:0;padding:10px 11px;font-size:11.5px;}
-    .stat{min-width:64px;padding:7px 10px;} .stat .v{font-size:16px;}
-    #batteryWrap{min-width:120px;} #brand h1{font-size:12.5px;}
+    .stat{min-width:62px;padding:7px 10px;} .stat .v{font-size:16px;}
+    #batteryWrap{min-width:124px;} #brand h1{font-size:12.5px;}
     #hintBar{font-size:10px;}
   }
   @media (max-width:560px){
-    #patientPanel{width:calc(100vw - 20px);top:auto;bottom:46px;max-height:46vh;overflow-y:auto;}
-    #sidePanel{flex-direction:row;bottom:calc(46vh + 54px);right:10px;flex-wrap:wrap;justify-content:flex-end;}
+    #patientPanel{width:calc(100vw - 20px);top:auto;bottom:46px;max-height:48vh;}
+    #sidePanel{flex-direction:row;bottom:calc(48vh + 54px);right:10px;flex-wrap:wrap;justify-content:flex-end;}
     .ibtn .ico{font-size:15px;} .ibtn span.lbl{display:none;}
     .ibtn{min-width:44px;justify-content:center;}
     #hintBar{display:none;}
     .modal .grid2{grid-template-columns:1fr;}
+    #envChips{top:108px;}
   }
 </style>
 </head>
@@ -164,12 +170,13 @@
     <small>Voice Integrated Triage &amp; Assessment Local</small>
   </div>
   <div class="stat glass" id="statScore"><span class="k">Puntos</span><span class="v" id="scoreVal">0</span></div>
-  <div class="stat glass"><span class="k">Paciente</span><span class="v" id="patientVal">1 / 5</span></div>
+  <div class="stat glass"><span class="k">Paciente</span><span class="v" id="patientVal">— / 5</span></div>
   <div class="stat glass"><span class="k">Tiempo</span><span class="v" id="timeVal">00:00</span></div>
+  <div class="stat glass"><span class="k">Carpa</span><span class="v" id="ambientVal">26 °C</span></div>
   <div id="batteryWrap" class="glass">
     <div id="batteryRow">
-      <span class="k" style="font-size:10px;letter-spacing:1.6px;color:var(--muted)">BATERÍA 18650</span>
-      <span id="batteryPct">70%</span>
+      <span class="k" style="font-size:10px;letter-spacing:1.5px;color:var(--muted)">BATERÍA 18650</span>
+      <span id="batteryPct">75%</span>
     </div>
     <div id="batteryShell"><div id="batteryFill"></div></div>
     <div id="alignRow"><span>☀ SOL</span><div id="alignBar"><div id="alignFill"></div></div></div>
@@ -177,17 +184,32 @@
   <div class="stat glass" id="modePill"><span class="arcade">◉ MODO ARCADE 3D</span><span class="xr">◈ REALIDAD MIXTA</span></div>
 </div>
 
+<!-- AVISOS AMBIENTALES -->
+<div id="envChips">
+  <div class="echip noise" id="chipNoise">🔊 PICO DE RUIDO — active “Anular Ruido” antes del análisis de voz</div>
+  <div class="echip heat" id="chipHeat">🌡 CALOR EN LA CARPA — se requiere “Calibrar Temp Ambiental”</div>
+</div>
+
 <!-- PANEL DE PACIENTE -->
 <div id="patientPanel" class="glass">
   <h2>▶ Paciente en triaje</h2>
-  <div id="pName">—</div>
-  <div id="pMeta">—</div>
+  <div id="pName">En espera de misión</div>
+  <div id="pMeta">El radar detectará pacientes automáticamente</div>
   <div id="pSymptoms"></div>
   <ul class="checklist">
-    <li id="step-radar"><span class="dot"></span>Radar mmWave (distancia / respiración)<span class="val" id="val-radar"></span></li>
-    <li id="step-ir"><span class="dot"></span>Sensor IR (temperatura)<span class="val" id="val-ir"></span></li>
-    <li id="step-mic"><span class="dot"></span>Micrófono MEMS (análisis de voz)<span class="val" id="val-mic"></span></li>
+    <li id="step-radar"><span class="dot"></span>Radar mmWave · proximidad automática<span class="val" id="val-radar"></span></li>
+    <li id="step-ir"><span class="dot"></span>Sensor IR · temperatura corporal<span class="val" id="val-ir"></span></li>
+    <li id="step-mic"><span class="dot"></span>Micrófono MEMS · diálogo y disnea<span class="val" id="val-mic"></span></li>
   </ul>
+
+  <!-- Q&A CONVERSACIONAL -->
+  <div id="qaBox" class="hidden">
+    <div id="qaProgress">PREGUNTA 1 / 3</div>
+    <div id="qaQuestion"></div>
+    <div id="qaOptions"></div>
+    <div id="qaAnalyzing">🎙 Analizando patrones de voz y tos…</div>
+  </div>
+
   <div id="triageBtns">
     <button class="tbtn verde" data-t="verde" disabled><span class="led-dot"></span>VERDE — Estable</button>
     <button class="tbtn amarillo" data-t="amarillo" disabled><span class="led-dot"></span>AMARILLO — Monitoreo</button>
@@ -199,49 +221,52 @@
 <!-- BOTONES LATERALES -->
 <div id="sidePanel">
   <button class="ibtn" id="xrBtn"><span class="ico">🥽</span><span class="lbl">Entrar a Realidad Mixta / AR</span></button>
+  <button class="ibtn" id="noiseBtn"><span class="ico">🔇</span><span class="lbl">Anular Ruido</span></button>
+  <button class="ibtn" id="calibBtn"><span class="ico">🌡</span><span class="lbl">Calibrar Temp Ambiental</span></button>
   <button class="ibtn" id="muteBtn"><span class="ico">🔊</span><span class="lbl">Silenciar voz</span></button>
   <button class="ibtn" id="restartBtn"><span class="ico">↻</span><span class="lbl">Reiniciar misión</span></button>
   <button class="ibtn" id="helpBtn"><span class="ico">?</span><span class="lbl">Ayuda</span></button>
 </div>
 
-<div id="hintBar" class="glass">Arrastra para orbitar · Clic en los sensores para evaluar · Gira las dos alas solares hacia el sol móvil para recargar</div>
+<div id="hintBar" class="glass">Arrastra para orbitar · Clic en sensores para evaluar · Gira las dos alas solares hacia el sol móvil · La voz guía cada paso</div>
 <div id="tooltip"></div>
 <div id="toastWrap"></div>
 
 <!-- MODAL DE INICIO / AYUDA -->
 <div class="modal-overlay" id="introModal">
   <div class="modal glass">
-    <h2>V.I.T.A.L. — EXPERIENCIA DUAL</h2>
-    <div class="sub">ARCADE 3D INTERACTIVO + REALIDAD MIXTA WEBXR</div>
-    <p>Eres el operador de una estación <b>V.I.T.A.L.</b>, un puesto de triaje médico sin contacto para zonas epidemiológicas. Atiende la cola de pacientes usando los sensores del dispositivo y decide el nivel de alerta antes de que se agote la batería.</p>
+    <h2>V.I.T.A.L. — EXPERIENCIA DUAL v2</h2>
+    <div class="sub">PUESTO DE TRIAJE DE CAMPAÑA · ARCADE 3D + REALIDAD MIXTA WEBXR</div>
+    <p>Operas una estación <b>V.I.T.A.L.</b> dentro de una carpa médica de emergencia. El radar de proximidad despierta la estación automáticamente cuando un paciente se acerca: tu trabajo es medir, dialogar y decidir el nivel de alerta antes de que se agote la batería 18650.</p>
     <div class="grid2">
-      <div class="infoCard"><b>◎ RADAR mmWAVE</b>Mide distancia y frecuencia respiratoria. El OLED muestra la onda de respiración en vivo.</div>
-      <div class="infoCard"><b>◉ SENSOR IR</b>Lee la temperatura corporal sin contacto en tiempo real.</div>
-      <div class="infoCard"><b>🎙 MICRÓFONO / ALTAVOZ</b>Análisis de voz con prompts hablados en español y texto en el OLED.</div>
-      <div class="infoCard"><b>🚦 3 LEDS</b>Verde = estable · Amarillo = monitoreo · Rojo = alerta crítica.</div>
+      <div class="infoCard"><b>◎ RADAR mmWAVE</b>Detección automática de aproximación, distancia y frecuencia respiratoria con onda en el OLED.</div>
+      <div class="infoCard"><b>◉ SENSOR IR</b>Temperatura sin contacto. El calor de la carpa desvía la lectura: calibra cuando se solicite.</div>
+      <div class="infoCard"><b>🎙 DIÁLOGO DE VOZ</b>La estación hace 3 preguntas; escoge la respuesta del paciente. El análisis acústico estima la <b>disnea</b> (no hay sensor de SpO2).</div>
+      <div class="infoCard"><b>🔇 / 🌡 DINÁMICAS</b>Picos de ruido del generador: usa “Anular Ruido”. Calor en la carpa: usa “Calibrar Temp Ambiental”.</div>
     </div>
     <ul>
-      <li><b>Alas solares:</b> arrástralas para girarlas y alinea ambas con el sol en movimiento. Cada panel bien orientado inyecta carga a la batería 18650.</li>
-      <li>Completa las 3 mediciones de cada paciente y elige el triaje correcto para sumar puntos.</li>
-      <li>En dispositivos compatibles, pulsa <b>“Entrar a Realidad Mixta / AR”</b> para atender la estación en tu espacio real con controladores WebXR.</li>
+      <li><b>Alas solares:</b> el sol recorre el cielo lentamente. Gira manualmente ambos paneles hacia él: la carga es estrictamente proporcional al ángulo de alineación.</li>
+      <li>Completa radar (automático) + IR + diálogo, y decide el triaje Verde / Amarillo / Rojo según temperatura, disnea y respuestas.</li>
+      <li>Los mensajes del OLED permanecen mínimo 3,5 segundos y la voz hace cola sin solaparse.</li>
+      <li>En equipo compatible, pulsa <b>“Entrar a Realidad Mixta / AR”</b> para operar dentro de tu espacio con controladores WebXR.</li>
     </ul>
-    <button class="bigBtn" id="startBtn">INICIAR MISIÓN</button>
+    <button class="bigBtn" id="startBtn">INICIAR GUARDIA MÉDICA</button>
   </div>
 </div>
 
 <!-- MODAL DE RESUMEN -->
 <div class="modal-overlay hidden" id="summaryModal">
   <div class="modal glass">
-    <h2>INFORME DE MISIÓN</h2>
-    <div class="sub">RESUMEN DE LA JORNADA DE TRIAJE</div>
+    <h2>INFORME DE GUARDIA</h2>
+    <div class="sub">RESUMEN DE LA JORNADA EN LA CARPA DE TRIAGE</div>
     <div id="finalRank"></div>
     <div class="summaryGrid">
       <div class="s"><div class="n" id="sumScore">0</div><div class="l">Puntos</div></div>
-      <div class="s"><div class="n" id="sumAcc">0%</div><div class="l">Precisión</div></div>
+      <div class="s"><div class="n" id="sumAcc">0%</div><div class="l">Precisión triaje</div></div>
       <div class="s"><div class="n" id="sumPatients">0</div><div class="l">Pacientes</div></div>
+      <div class="s"><div class="n" id="sumQA">0/15</div><div class="l">Aciertos de diálogo</div></div>
       <div class="s"><div class="n" id="sumTime">00:00</div><div class="l">Duración</div></div>
       <div class="s"><div class="n" id="sumSolar">0 Wh</div><div class="l">E. solar cosechada</div></div>
-      <div class="s"><div class="n" id="sumBattery">0%</div><div class="l">Batería restante</div></div>
     </div>
     <button class="bigBtn" id="againBtn">JUGAR DE NUEVO</button>
     <button class="bigBtn ghost" id="helpAgainBtn">Ver instrucciones</button>
@@ -264,179 +289,276 @@ import { ARButton } from 'three/addons/webxr/ARButton.js';
 import { VRButton } from 'three/addons/webxr/VRButton.js';
 
 /* ============================================================
-   1. RENDERER, ESCENA, CÁMARA Y CONTROLES
+   1. RENDERER · ESCENA · CÁMARA · CONTROLES
 ============================================================ */
 const app = document.getElementById('app');
-const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:false, powerPreference:'high-performance' });
+const renderer = new THREE.WebGLRenderer({ antialias:true, powerPreference:'high-performance' });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.12;
+renderer.toneMappingExposure = 1.15;
 renderer.xr.enabled = true;
 app.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x050d17);
-scene.fog = new THREE.FogExp2(0x050d17, 0.028);
+scene.background = new THREE.Color(0x141a12);
+scene.fog = new THREE.FogExp2(0x1d241a, 0.020);
 
 const camera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 0.05, 120);
-camera.position.set(5.4, 2.8, 7.0);
+camera.position.set(5.6, 2.6, 7.4);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.08;
 controls.minDistance = 3.2;
-controls.maxDistance = 16;
-controls.maxPolarAngle = Math.PI * 0.62;
+controls.maxDistance = 17;
+controls.maxPolarAngle = Math.PI * 0.60;
 controls.target.set(0, 0.1, 0);
 
-/* Luces */
-scene.add(new THREE.HemisphereLight(0x9fd8ff, 0x0a1a26, 0.75));
-const ambient = new THREE.AmbientLight(0xffffff, 0.22);
-scene.add(ambient);
-const sunLight = new THREE.DirectionalLight(0xfff2d8, 1.7);
+/* Luces: ambiente cálido de carpa + lámpara médica + sol de entrada */
+scene.add(new THREE.HemisphereLight(0xfff2d8, 0x2a3326, 0.85));
+scene.add(new THREE.AmbientLight(0xfff0d8, 0.28));
+const sunLight = new THREE.DirectionalLight(0xffe2b0, 1.55);
 sunLight.castShadow = true;
 sunLight.shadow.mapSize.set(1024,1024);
-sunLight.shadow.camera.left=-8; sunLight.shadow.camera.right=8;
-sunLight.shadow.camera.top=8; sunLight.shadow.camera.bottom=-8;
+sunLight.shadow.camera.left=-9; sunLight.shadow.camera.right=9;
+sunLight.shadow.camera.top=9; sunLight.shadow.camera.bottom=-9;
 scene.add(sunLight);
-const rimLight = new THREE.PointLight(0x2f9bff, 0.9, 18);
-rimLight.position.set(-5, 3.5, -4);
+const lampLight = new THREE.PointLight(0xbfefff, 0.85, 16);
+lampLight.position.set(0, 3.6, 0.5);
+scene.add(lampLight);
+const rimLight = new THREE.PointLight(0x35f0d0, 0.55, 14);
+rimLight.position.set(-4.5, 2.2, -3);
 scene.add(rimLight);
 
 /* ============================================================
-   2. ENTORNO: SUELO, PARTÍCULAS Y SOL MÓVIL
+   2. ENTORNO: CARPA MÉDICA DE CAMPAÑA
 ============================================================ */
-const floor = new THREE.Mesh(
-  new THREE.PlaneGeometry(60,60),
-  new THREE.MeshStandardMaterial({ color:0x0a1826, roughness:0.95, metalness:0.1 })
-);
-floor.rotation.x = -Math.PI/2;
-floor.position.y = -1.52;
-floor.receiveShadow = true;
-scene.add(floor);
+const tentGroup = new THREE.Group();
+scene.add(tentGroup);
 
-const grid = new THREE.GridHelper(44, 44, 0x1ad6c2, 0x14324a);
-grid.position.y = -1.50;
-grid.material.transparent = true;
-grid.material.opacity = 0.32;
-scene.add(grid);
-
-/* Partículas de ambiente */
-const pGeo = new THREE.BufferGeometry();
-const pCount = 320, pPos = new Float32Array(pCount*3);
-for(let i=0;i<pCount;i++){
-  pPos[i*3]   = (Math.random()-0.5)*30;
-  pPos[i*3+1] = Math.random()*10 - 1;
-  pPos[i*3+2] = (Math.random()-0.5)*30;
+function fabricTexture(base, stripe){
+  const c = document.createElement('canvas'); c.width=c.height=256;
+  const g = c.getContext('2d');
+  g.fillStyle = base; g.fillRect(0,0,256,256);
+  for(let i=0;i<2600;i++){
+    g.fillStyle = `rgba(0,0,0,${Math.random()*0.07})`;
+    g.fillRect(Math.random()*256, Math.random()*256, 1.5, 1.5);
+  }
+  g.strokeStyle = stripe; g.lineWidth = 3;
+  for(let y=0;y<=256;y+=64){ g.beginPath(); g.moveTo(0,y); g.lineTo(256,y); g.stroke(); }
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
 }
-pGeo.setAttribute('position', new THREE.BufferAttribute(pPos,3));
-const particles = new THREE.Points(pGeo, new THREE.PointsMaterial({ color:0x6fe9ff, size:0.055, transparent:true, opacity:0.55 }));
-scene.add(particles);
+function tarpTexture(){
+  const c = document.createElement('canvas'); c.width=c.height=256;
+  const g = c.getContext('2d');
+  g.fillStyle = '#5d6648'; g.fillRect(0,0,256,256);
+  for(let i=0;i<2200;i++){ g.fillStyle=`rgba(0,0,0,${Math.random()*0.08})`; g.fillRect(Math.random()*256,Math.random()*256,2,2); }
+  g.strokeStyle='rgba(30,38,24,.85)'; g.lineWidth=2;
+  for(let p=0;p<=256;p+=64){ g.beginPath();g.moveTo(p,0);g.lineTo(p,256);g.stroke(); g.beginPath();g.moveTo(0,p);g.lineTo(256,p);g.stroke(); }
+  const t = new THREE.CanvasTexture(c); t.wrapS=t.wrapT=THREE.RepeatWrapping; t.repeat.set(6,5);
+  t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+const wallTex = fabricTexture('#9aa57f','rgba(70,82,58,.55)');
+wallTex.repeat.set(4,1.6);
+const roofTex = fabricTexture('#8b9672','rgba(60,70,48,.6)');
+roofTex.repeat.set(4,2);
+const wallMat = new THREE.MeshStandardMaterial({ map:wallTex, roughness:0.95, metalness:0, side:THREE.DoubleSide });
+const roofMat = new THREE.MeshStandardMaterial({ map:roofTex, roughness:0.95, side:THREE.DoubleSide });
+const poleMat = new THREE.MeshStandardMaterial({ color:0x5a6350, roughness:0.6, metalness:0.5 });
 
-/* Sol virtual móvil */
-function makeGlowTexture(){
+function tbox(w,h,d,mat,x,y,z,parent=tentGroup){
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), mat);
+  m.position.set(x,y,z); m.castShadow=true; m.receiveShadow=true; parent.add(m); return m;
+}
+/* Suelo de lona */
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(24,20),
+  new THREE.MeshStandardMaterial({ map:tarpTexture(), roughness:1 }));
+floor.rotation.x = -Math.PI/2; floor.position.y = -2.62; floor.receiveShadow = true;
+tentGroup.add(floor);
+
+/* Pared trasera y laterales */
+tbox(22, 5.2, 0.18, wallMat, 0, 0, -7.2);
+const sideL = tbox(0.18, 5.2, 14.6, wallMat, -11, 0, 0);
+const sideR = tbox(0.18, 5.2, 14.6, wallMat, 11, 0, 0);
+/* Frente con apertura central de 7 m */
+tbox(7.5, 5.2, 0.18, wallMat, -7.25, 0, 7.2);
+tbox(7.5, 5.2, 0.18, wallMat,  7.25, 0, 7.2);
+/* Techo a dos aguas */
+const roofA = tbox(12.4, 0.16, 15.2, roofMat, -5.5, 3.95, 0);
+roofA.rotation.z = 0.30;
+const roofB = tbox(12.4, 0.16, 15.2, roofMat, 5.5, 3.95, 0);
+roofB.rotation.z = -0.30;
+/* Cumbrera y postes */
+const ridge = new THREE.Mesh(new THREE.CylinderGeometry(0.09,0.09,15.2,14), poleMat);
+ridge.rotation.x = Math.PI/2; ridge.position.set(0,5.55,0); ridge.castShadow=true; tentGroup.add(ridge);
+for(const [x,z] of [[-10.8,-7],[10.8,-7],[-10.8,7],[10.8,7],[0,-7],[0,7]]){
+  const p = new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.08,5.4,12), poleMat);
+  p.position.set(x,0.1,z); p.castShadow=true; tentGroup.add(p);
+}
+
+/* Cruz médica en la pared trasera */
+const crossMat = new THREE.MeshStandardMaterial({ color:0xd84450, roughness:.6, emissive:0x7a1620, emissiveIntensity:.5 });
+tbox(0.34, 1.5, 0.1, crossMat, 0, 2.55, -7.06);
+tbox(1.15, 0.34, 0.1, crossMat, 0, 2.55, -7.05);
+
+/* Camilla médica plegable (izquierda) */
+const cot = new THREE.Group(); cot.position.set(-4.9, 0, -2.6); cot.rotation.y = 0.22; tentGroup.add(cot);
+const cotMetal = new THREE.MeshStandardMaterial({ color:0x7d8a93, roughness:.35, metalness:.8 });
+const mattress = new THREE.MeshStandardMaterial({ color:0xdfe9ee, roughness:.85 });
+tbox(2.5,0.22,1.05,mattress,0,-1.62,0,cot);
+tbox(2.62,0.1,1.16,cotMetal,0,-1.8,0,cot);
+for(const [x,z] of [[-1.15,-.45],[1.15,-.45],[-1.15,.45],[1.15,.45]]){
+  const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.045,0.045,0.85,10), cotMetal);
+  leg.position.set(x,-2.2,z); leg.castShadow=true; cot.add(leg);
+}
+tbox(0.62,0.16,0.95,new THREE.MeshStandardMaterial({color:0xf4f8fa,roughness:.9}),-0.85,-1.42,0,cot);
+
+/* Caja de suministros y poste de suero */
+const crate = tbox(0.95,0.75,0.95,new THREE.MeshStandardMaterial({color:0x8a6f45,roughness:.9}),-3.1,-2.24,-4.6);
+crate.rotation.y = 0.15;
+const ivPole = new THREE.Mesh(new THREE.CylinderGeometry(0.035,0.035,2.9,10), cotMetal);
+ivPole.position.set(4.3,-1.15,-2.4); ivPole.castShadow=true; tentGroup.add(ivPole);
+tbox(0.42,0.6,0.16,new THREE.MeshStandardMaterial({color:0xcfe8f5,roughness:.4,transparent:true,opacity:.85}),4.3,-0.15,-2.4);
+const ivHook = new THREE.Mesh(new THREE.TorusGeometry(0.12,0.02,8,20), cotMetal);
+ivHook.position.set(4.3,0.32,-2.4); tentGroup.add(ivHook);
+
+/* Mesa plegable donde descansa V.I.T.A.L. */
+const tableMat = new THREE.MeshStandardMaterial({ color:0x6e7c86, roughness:.5, metalness:.55 });
+tbox(5.0,0.14,1.7,tableMat,0,-1.6,0);
+for(const [x,z] of [[-2.25,-.7],[2.25,-.7],[-2.25,.7],[2.25,.7]]){
+  const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.05,1.0,10), tableMat);
+  leg.position.set(x,-2.1,z); leg.castShadow=true; tentGroup.add(leg);
+}
+
+/* Lámpara colgante */
+const lampCord = new THREE.Mesh(new THREE.CylinderGeometry(0.015,0.015,1.6,8), poleMat);
+lampCord.position.set(0,4.45,0.5); tentGroup.add(lampCord);
+const lampShade = new THREE.Mesh(new THREE.ConeGeometry(0.34,0.3,20,1,true),
+  new THREE.MeshStandardMaterial({ color:0xd9e4ea, roughness:.4, metalness:.6, side:THREE.DoubleSide }));
+lampShade.position.set(0,3.62,0.5); lampShade.rotation.x = Math.PI; tentGroup.add(lampShade);
+
+/* Sol exterior (visible por la entrada) + rayo volumétrico */
+function glowTexture(){
   const c = document.createElement('canvas'); c.width=c.height=128;
   const g = c.getContext('2d');
   const grad = g.createRadialGradient(64,64,4,64,64,62);
-  grad.addColorStop(0,'rgba(255,244,200,1)');
-  grad.addColorStop(0.25,'rgba(255,190,90,.85)');
-  grad.addColorStop(1,'rgba(255,150,40,0)');
+  grad.addColorStop(0,'rgba(255,246,210,1)'); grad.addColorStop(.3,'rgba(255,196,110,.8)'); grad.addColorStop(1,'rgba(255,150,40,0)');
   g.fillStyle=grad; g.fillRect(0,0,128,128);
-  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+  const t = new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; return t;
 }
 const sunGroup = new THREE.Group();
-const sunMesh = new THREE.Mesh(
-  new THREE.SphereGeometry(0.34, 24, 24),
-  new THREE.MeshBasicMaterial({ color:0xffd27a })
-);
-const sunGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map:makeGlowTexture(), transparent:true, blending:THREE.AdditiveBlending, depthWrite:false }));
-sunGlow.scale.set(2.6,2.6,1);
-sunGroup.add(sunMesh, sunGlow);
+sunGroup.add(new THREE.Mesh(new THREE.SphereGeometry(0.32,24,24), new THREE.MeshBasicMaterial({ color:0xffd98a })));
+const sunGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map:glowTexture(), transparent:true, blending:THREE.AdditiveBlending, depthWrite:false }));
+sunGlow.scale.set(2.4,2.4,1); sunGroup.add(sunGlow);
 scene.add(sunGroup);
 let sunAngle = 0;
-const SUN_RADIUS = 9.5;
+const SUN_RADIUS = 10.5, SUN_PERIOD = 105; // segundos por órbita completa
+
+const beamMat = new THREE.MeshBasicMaterial({
+  color:0xffd99a, transparent:true, opacity:0.10, side:THREE.DoubleSide,
+  blending:THREE.AdditiveBlending, depthWrite:false
+});
+/* Grupo exterior para el giro horizontal; el cono dentro apunta al interior (-Z) */
+const sunBeamPivot = new THREE.Group();
+sunBeamPivot.position.set(0, 1.4, 4.6);
+const sunBeam = new THREE.Mesh(new THREE.ConeGeometry(2.6, 9.5, 32, 1, true), beamMat);
+sunBeam.rotation.x = -Math.PI/2;
+sunBeamPivot.add(sunBeam);
+scene.add(sunBeamPivot);
+
+/* Partículas de polvo dentro del rayo de luz */
+const dustGeo = new THREE.BufferGeometry();
+const dustN = 140, dustPos = new Float32Array(dustN*3);
+for(let i=0;i<dustN;i++){
+  dustPos[i*3]   = (Math.random()-0.5)*5;
+  dustPos[i*3+1] = Math.random()*4 - 1.6;
+  dustPos[i*3+2] = Math.random()*7 - 0.5;
+}
+dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos,3));
+const dust = new THREE.Points(dustGeo, new THREE.PointsMaterial({ color:0xffe6b8, size:.045, transparent:true, opacity:.65 }));
+scene.add(dust);
 
 /* ============================================================
-   3. CONSTRUCCIÓN PROCEDURAL DE V.I.T.A.L.
+   3. V.I.T.A.L. PROCEDURAL — LAYOUT CORREGIDO
+   Panel frontal: x ∈ [-2.1, 2.1], y ∈ [-1.5, 1.5]
 ============================================================ */
 const device = new THREE.Group();
-device.name = 'VITAL';
+device.name='VITAL';
 scene.add(device);
 
 const MAT = {
-  housing: new THREE.MeshStandardMaterial({ color:0xe8eef5, roughness:0.42, metalness:0.18 }),
-  front:   new THREE.MeshStandardMaterial({ color:0xcfdbe8, roughness:0.5,  metalness:0.12 }),
-  dark:    new THREE.MeshStandardMaterial({ color:0x122330, roughness:0.55, metalness:0.35 }),
-  black:   new THREE.MeshStandardMaterial({ color:0x070d14, roughness:0.7,  metalness:0.2 }),
-  metal:   new THREE.MeshStandardMaterial({ color:0x8fa3b5, roughness:0.3,  metalness:0.85 }),
-  lens:    new THREE.MeshStandardMaterial({ color:0x0b2a44, roughness:0.08, metalness:0.4, emissive:0x0a3a5c, emissiveIntensity:0.6 }),
+  housing: new THREE.MeshStandardMaterial({ color:0xe9eff4, roughness:.42, metalness:.18 }),
+  front:   new THREE.MeshStandardMaterial({ color:0xd2deea, roughness:.5,  metalness:.12 }),
+  dark:    new THREE.MeshStandardMaterial({ color:0x122330, roughness:.55, metalness:.35 }),
+  black:   new THREE.MeshStandardMaterial({ color:0x070d14, roughness:.7,  metalness:.2 }),
+  metal:   new THREE.MeshStandardMaterial({ color:0x8fa3b5, roughness:.3,  metalness:.85 }),
+  lens:    new THREE.MeshStandardMaterial({ color:0x0b2a44, roughness:.08, metalness:.4, emissive:0x0a3a5c, emissiveIntensity:.6 }),
 };
 function box(w,h,d,mat,x,y,z,parent=device){
   const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), mat);
   m.position.set(x,y,z); m.castShadow=true; m.receiveShadow=true; parent.add(m); return m;
 }
-function cyl(rt,rb,h,mat,x,y,z,parent=device,seg=28){
-  const m = new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg), mat);
+function cyl(r,h,mat,x,y,z,parent=device,seg=28){
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,seg), mat);
   m.position.set(x,y,z); m.castShadow=true; m.receiveShadow=true; parent.add(m); return m;
 }
-function facingCylinder(r, depth, mat, x, y, z, parent=device){
-  const m = cyl(r,r,depth,mat,x,y,z,parent);
-  m.rotation.x = Math.PI/2;
-  return m;
+function faceCyl(r,depth,mat,x,y,z,parent=device){
+  const m = cyl(r,depth,mat,x,y,z,parent); m.rotation.x = Math.PI/2; return m;
 }
-
-/* Carcasa principal + panel frontal */
+/* Carcasa */
 box(4.2, 3.0, 0.7, MAT.housing, 0,0,0);
 box(3.92, 2.72, 0.10, MAT.front, 0,0,0.36);
-const edges = new THREE.LineSegments(
+device.add(new THREE.LineSegments(
   new THREE.EdgesGeometry(new THREE.BoxGeometry(4.21,3.01,0.71)),
-  new THREE.LineBasicMaterial({ color:0x27405a, transparent:true, opacity:0.55 })
-);
-device.add(edges);
+  new THREE.LineBasicMaterial({ color:0x27405a, transparent:true, opacity:.55 })
+));
 
-/* Logotipo superior */
-function makeTextPlane(text, w, h, color='#27607a', font='bold 90px "Segoe UI", sans-serif'){
+function textPlane(text,w,h,color='#27607a',font='bold 90px "Segoe UI", sans-serif'){
   const c = document.createElement('canvas'); c.width=512; c.height=128;
   const g = c.getContext('2d');
   g.clearRect(0,0,512,128); g.fillStyle=color; g.font=font; g.textAlign='center'; g.textBaseline='middle';
   g.fillText(text,256,66);
   const t = new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace;
-  const m = new THREE.Mesh(new THREE.PlaneGeometry(w,h), new THREE.MeshBasicMaterial({ map:t, transparent:true }));
-  return m;
+  return new THREE.Mesh(new THREE.PlaneGeometry(w,h), new THREE.MeshBasicMaterial({ map:t, transparent:true }));
 }
-const logo = makeTextPlane('V.I.T.A.L', 1.5, 0.38);
-logo.position.set(0, 1.28, 0.425);
+
+/* Título centrado en la parte superior, lejos de cualquier sensor */
+const logo = textPlane('V.I.T.A.L', 1.85, 0.36);
+logo.position.set(0, 1.24, 0.425);
 device.add(logo);
 
-/* ---------- OLED ---------- */
-box(1.95, 1.22, 0.10, MAT.dark, -0.85, 0.5, 0.42);
+/* ---------- OLED (izquierda-centro) ---------- */
+box(1.95, 1.18, 0.10, MAT.dark, -0.98, 0.48, 0.42);
 const oledCanvas = document.createElement('canvas');
 oledCanvas.width = 512; oledCanvas.height = 256;
 const octx = oledCanvas.getContext('2d');
 const oledTex = new THREE.CanvasTexture(oledCanvas);
 oledTex.colorSpace = THREE.SRGBColorSpace;
 oledTex.anisotropy = 4;
-const oledScreen = new THREE.Mesh(
-  new THREE.PlaneGeometry(1.72, 0.98),
-  new THREE.MeshBasicMaterial({ map:oledTex })
-);
-oledScreen.position.set(-0.85, 0.5, 0.478);
+const oledScreen = new THREE.Mesh(new THREE.PlaneGeometry(1.72, 0.96), new THREE.MeshBasicMaterial({ map:oledTex }));
+oledScreen.position.set(-0.98, 0.48, 0.478);
 device.add(oledScreen);
-const oledGlow = new THREE.PointLight(0x35f0d0, 0.55, 3.2);
-oledGlow.position.set(-0.85,0.5,1.0);
+const oledGlow = new THREE.PointLight(0x35f0d0, 0.5, 3.2);
+oledGlow.position.set(-0.98,0.48,1.0);
 device.add(oledGlow);
 
-/* ---------- Sensor IR ---------- */
-facingCylinder(0.155, 0.09, MAT.metal, 0.08, 1.05, 0.45);
-facingCylinder(0.10, 0.10, MAT.lens, 0.08, 1.05, 0.49);
+/* ---------- Sensor IR: a la DERECHA del OLED, sin solapamiento ---------- */
+faceCyl(0.155, 0.09, MAT.metal, 0.62, 0.82, 0.45);
+faceCyl(0.10, 0.10, MAT.lens, 0.62, 0.82, 0.49);
 const irRing = new THREE.Mesh(new THREE.TorusGeometry(0.155,0.018,12,32), MAT.dark);
-irRing.position.set(0.08,1.05,0.50); device.add(irRing);
+irRing.position.set(0.62,0.82,0.50); device.add(irRing);
+const irLabel = textPlane('SENSOR IR', 0.82, 0.15, '#33607a', 'bold 54px "Segoe UI", sans-serif');
+irLabel.position.set(0.62, 0.54, 0.43);
+device.add(irLabel);
 
-/* ---------- LEDs x3 ---------- */
+/* ---------- LEDs x3 (columna derecha) ---------- */
 const ledDefs = [
   { key:'verde',    color:0x37e07a, y:0.98 },
   { key:'amarillo', color:0xffd23e, y:0.58 },
@@ -444,111 +566,82 @@ const ledDefs = [
 ];
 const leds = {};
 for(const d of ledDefs){
-  facingCylinder(0.115, 0.08, MAT.dark, 1.42, d.y, 0.44);
-  const bulb = facingCylinder(0.078, 0.10,
-    new THREE.MeshStandardMaterial({ color:d.color, emissive:d.color, emissiveIntensity:0.12, roughness:0.25 }),
-    1.42, d.y, 0.49);
-  const light = new THREE.PointLight(d.color, 0, 2.4);
-  light.position.set(1.42, d.y, 0.95);
+  faceCyl(0.115, 0.08, MAT.dark, 1.6, d.y, 0.44);
+  const bulb = faceCyl(0.078, 0.10,
+    new THREE.MeshStandardMaterial({ color:d.color, emissive:d.color, emissiveIntensity:.12, roughness:.25 }),
+    1.6, d.y, 0.49);
+  const light = new THREE.PointLight(d.color, 0, 2.3);
+  light.position.set(1.6, d.y, 0.95);
   device.add(light);
-  leds[d.key] = { bulb, light, color:d.color };
+  leds[d.key] = { bulb, light };
 }
-const ledLabel = makeTextPlane('LED x3', 0.7, 0.2, '#27607a', 'bold 64px "Segoe UI", sans-serif');
-ledLabel.position.set(1.42, -0.12, 0.43);
+const ledLabel = textPlane('LED x3', 0.62, 0.15, '#33607a', 'bold 54px "Segoe UI", sans-serif');
+ledLabel.position.set(1.6, -0.08, 0.43);
 device.add(ledLabel);
 
-/* ---------- Radar mmWave (anillos concéntricos) ---------- */
-facingCylinder(0.26, 0.08, MAT.dark, 0.35, -0.92, 0.44);
+/* ---------- Radar mmWave (anillos concéntricos), elevado ---------- */
+faceCyl(0.26, 0.08, MAT.dark, -0.18, -0.62, 0.44);
 for(const r of [0.07, 0.135, 0.205]){
-  const ring = new THREE.Mesh(new THREE.TorusGeometry(r, 0.018, 10, 36),
-    new THREE.MeshStandardMaterial({ color:0x9fb6c8, metalness:0.8, roughness:0.25, emissive:0x1a6f8c, emissiveIntensity:0.25 }));
-  ring.position.set(0.35,-0.92,0.50);
-  device.add(ring);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(r,0.018,10,36),
+    new THREE.MeshStandardMaterial({ color:0x9fb6c8, metalness:.8, roughness:.25, emissive:0x1a6f8c, emissiveIntensity:.25 }));
+  ring.position.set(-0.18,-0.62,0.50); device.add(ring);
 }
-facingCylinder(0.045, 0.10, MAT.lens, 0.35, -0.92, 0.50);
+faceCyl(0.045, 0.10, MAT.lens, -0.18, -0.62, 0.50);
+const radarLabel = textPlane('RADAR mmWAVE', 1.15, 0.15, '#33607a', 'bold 50px "Segoe UI", sans-serif');
+radarLabel.position.set(-0.18, -1.05, 0.43);
+device.add(radarLabel);
 
-/* ---------- Rejillas de altavoz y micrófono (textura procedural) ---------- */
-function makeGrillTexture(){
+/* ---------- Rejillas altavoz / micrófono, elevadas respecto al borde ---------- */
+function grillTexture(){
   const c = document.createElement('canvas'); c.width=c.height=256;
   const g = c.getContext('2d');
-  g.fillStyle = '#10202e'; g.beginPath(); g.arc(128,128,126,0,Math.PI*2); g.fill();
-  g.fillStyle = '#050b12';
-  for(let row=-6;row<=6;row++){
-    for(let col=-6;col<=6;col++){
-      const x = 128 + col*17 + (row%2?8.5:0);
-      const y = 128 + row*15;
-      if(Math.hypot(x-128,y-128) < 108){ g.beginPath(); g.arc(x,y,3.4,0,Math.PI*2); g.fill(); }
-    }
+  g.fillStyle='#10202e'; g.beginPath(); g.arc(128,128,126,0,Math.PI*2); g.fill();
+  g.fillStyle='#050b12';
+  for(let row=-6;row<=6;row++) for(let col=-6;col<=6;col++){
+    const x=128+col*17+(row%2?8.5:0), y=128+row*15;
+    if(Math.hypot(x-128,y-128)<108){ g.beginPath(); g.arc(x,y,3.4,0,Math.PI*2); g.fill(); }
   }
-  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+  const t = new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; return t;
 }
-const grillTex = makeGrillTexture();
-function makeGrill(x,y,r){
-  const m = new THREE.Mesh(new THREE.CircleGeometry(r,40), new THREE.MeshStandardMaterial({ map:grillTex, roughness:0.85 }));
+const grillTex = grillTexture();
+function grill(x,y,r){
+  const m = new THREE.Mesh(new THREE.CircleGeometry(r,40), new THREE.MeshStandardMaterial({ map:grillTex, roughness:.85 }));
   m.position.set(x,y,0.485); device.add(m);
   const ring = new THREE.Mesh(new THREE.TorusGeometry(r,0.025,12,40), MAT.metal);
   ring.position.set(x,y,0.49); device.add(ring);
-  return m;
 }
-makeGrill(-1.28, -0.98, 0.42);   // Altavoz
-makeGrill( 1.42, -0.98, 0.30);   // Micrófono
+grill(-1.42, -0.6, 0.40);
+grill( 1.18, -0.6, 0.30);
+const spkLabel = textPlane('ALTAVOZ', 0.82, 0.15, '#33607a', 'bold 52px "Segoe UI", sans-serif');
+spkLabel.position.set(-1.42, -1.14, 0.43); device.add(spkLabel);
+const micLabel = textPlane('MICRÓFONO', 0.92, 0.15, '#33607a', 'bold 52px "Segoe UI", sans-serif');
+micLabel.position.set(1.18, -1.06, 0.43); device.add(micLabel);
 
-/* ---------- Puerto USB-C en el lateral izquierdo ---------- */
-const usb = box(0.06, 0.24, 0.52, MAT.black, -2.12, -0.62, 0);
-usb.rotation.z = 0.02;
+/* ---------- USB-C lateral ---------- */
+box(0.06, 0.24, 0.52, MAT.black, -2.12, -0.5, 0);
 
-/* Etiquetas de componentes */
-const compLabels = [
-  { t:'RADAR mmWAVE', x:0.35, y:-1.34, w:1.15 },
-  { t:'ALTAVOZ',      x:-1.28, y:-1.48, w:0.8 },
-  { t:'MICRÓFONO',    x:1.42, y:-1.38, w:0.95 },
-  { t:'SENSOR IR',    x:0.08, y:1.34, w:0.85 },
-];
-for(const l of compLabels){
-  const p = makeTextPlane(l.t, l.w, 0.16, '#33607a', 'bold 56px "Segoe UI", sans-serif');
-  p.position.set(l.x, l.y, 0.43);
-  device.add(p);
-}
+/* ---------- Botones físicos de utilidad (cara superior) ---------- */
+const btnNoise3D = box(0.34, 0.1, 0.3, new THREE.MeshStandardMaterial({ color:0xc97a2e, roughness:.5, emissive:0x5a2c08, emissiveIntensity:.4 }), -0.34, 1.54, 0.1);
+const btnCalib3D = box(0.34, 0.1, 0.3, new THREE.MeshStandardMaterial({ color:0x2e8fc9, roughness:.5, emissive:0x0a3a5c, emissiveIntensity:.4 }), 0.34, 1.54, 0.1);
 
 /* ---------- Alas solares duales con bisagras ---------- */
-function buildWing(side){ // side: -1 izquierda, +1 derecha
+function buildWing(side){
   const pivot = new THREE.Group();
   pivot.position.set(side*2.12, 0.35, 0);
   device.add(pivot);
-
-  // bisagra vertical
   const hinge = new THREE.Mesh(new THREE.CylinderGeometry(0.09,0.09,0.55,20), MAT.metal);
-  hinge.castShadow = true;
-  pivot.add(hinge);
-  // brazo
+  hinge.castShadow=true; pivot.add(hinge);
   box(0.45,0.12,0.12,MAT.metal, side*0.24,0,0,pivot);
-
   const tilt = new THREE.Group();
   tilt.position.set(side*0.92, 0, 0);
   pivot.add(tilt);
-
-  const frame = box(1.55, 2.25, 0.08,
-    new THREE.MeshStandardMaterial({ color:0x243a4e, roughness:0.5, metalness:0.6 }),
-    0,0,0,tilt);
-
-  // celdas solares (rejilla 4 x 6)
-  const cellMat = new THREE.MeshStandardMaterial({
-    color:0x0d3b66, roughness:0.25, metalness:0.4,
-    emissive:0x1e90ff, emissiveIntensity:0.32
-  });
-  for(let r=0;r<6;r++){
-    for(let c=0;c<4;c++){
-      const cell = new THREE.Mesh(new THREE.BoxGeometry(0.30,0.30,0.03), cellMat);
-      cell.position.set(-0.57 + c*0.38, -0.86 + r*0.345, 0.055);
-      cell.castShadow = true;
-      tilt.add(cell);
-    }
+  box(1.55, 2.25, 0.08, new THREE.MeshStandardMaterial({ color:0x243a4e, roughness:.5, metalness:.6 }), 0,0,0,tilt);
+  const cellMat = new THREE.MeshStandardMaterial({ color:0x0d3b66, roughness:.25, metalness:.4, emissive:0x1e90ff, emissiveIntensity:.32 });
+  for(let r=0;r<6;r++) for(let c=0;c<4;c++){
+    const cell = new THREE.Mesh(new THREE.BoxGeometry(0.30,0.30,0.03), cellMat);
+    cell.position.set(-0.57 + c*0.38, -0.86 + r*0.345, 0.055);
+    cell.castShadow=true; tilt.add(cell);
   }
-  // normal de referencia (cara frontal +Z)
-  const normalMarker = new THREE.Object3D();
-  normalMarker.position.set(0,0,0.1);
-  tilt.add(normalMarker);
-
   pivot.userData = { isWing:true, side, tilt, cellMat, alignment:0 };
   pivot.rotation.y = side * -0.62;
   tilt.rotation.x = 0.12;
@@ -558,263 +651,183 @@ const wingL = buildWing(-1);
 const wingR = buildWing(1);
 
 /* ============================================================
-   4. REGISTRO DE INTERACTIVOS Y RAYCASTING
+   4. INTERACTIVOS · RAYCASTING · ARRASTRE DE ALAS
 ============================================================ */
-const interactive = []; // { root, action, label }
+const interactive = [];
 function register(root, action, label){
-  root.userData.action = action;
-  root.userData.label = label;
+  root.userData.action = action; root.userData.label = label;
   interactive.push(root);
 }
-// zona de clic invisible (las mallas con material invisible también participan en raycast)
-const irHit = new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.2,0.16,20),
-  new THREE.MeshBasicMaterial({ visible:false }));
-irHit.rotation.x = Math.PI/2;
-irHit.position.set(0.08,1.05,0.48);
-device.add(irHit);
-register(irHit,'ir','Sensor IR — clic para medir temperatura corporal');
-
-const radarHit = new THREE.Mesh(new THREE.CylinderGeometry(0.3,0.3,0.16,20),
-  new THREE.MeshBasicMaterial({ visible:false }));
-radarHit.rotation.x = Math.PI/2;
-radarHit.position.set(0.35,-0.92,0.48);
-device.add(radarHit);
-register(radarHit,'radar','Radar mmWave — clic para medir distancia y respiración');
-
-const micHit = new THREE.Mesh(new THREE.CylinderGeometry(0.34,0.34,0.16,20),
-  new THREE.MeshBasicMaterial({ visible:false }));
-micHit.rotation.x = Math.PI/2;
-micHit.position.set(1.42,-0.98,0.48);
-device.add(micHit);
-register(micHit,'mic','Micrófono MEMS — clic para análisis de voz');
-
-const spkHit = new THREE.Mesh(new THREE.CylinderGeometry(0.46,0.46,0.16,20),
-  new THREE.MeshBasicMaterial({ visible:false }));
-spkHit.rotation.x = Math.PI/2;
-spkHit.position.set(-1.28,-0.98,0.48);
-device.add(spkHit);
-register(spkHit,'speaker','Altavoz — clic para repetir el último mensaje de voz');
-
-const usbHit = new THREE.Mesh(new THREE.BoxGeometry(0.14,0.34,0.6),
-  new THREE.MeshBasicMaterial({ visible:false }));
-usbHit.position.set(-2.12,-0.62,0);
-device.add(usbHit);
-register(usbHit,'usb','Puerto USB-C — carga cableada de respaldo (simulación)');
-
-for(const k of Object.keys(leds)){
-  const hit = new THREE.Mesh(new THREE.CylinderGeometry(0.16,0.16,0.16,16),
-    new THREE.MeshBasicMaterial({ visible:false }));
-  hit.rotation.x = Math.PI/2;
-  const y = ledDefs.find(d=>d.key===k).y;
-  hit.position.set(1.42,y,0.48);
-  device.add(hit);
-  register(hit,'led','Indicador LED — estado del triaje: '+k.toUpperCase());
+function invisibleCyl(r, x,y,z){
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(r,r,0.16,20), new THREE.MeshBasicMaterial({ visible:false }));
+  m.rotation.x = Math.PI/2; m.position.set(x,y,z); device.add(m); return m;
 }
+register(invisibleCyl(0.2, 0.62,0.82,0.48), 'ir', 'Sensor IR — clic para medir temperatura corporal (antes calibra si hay alerta)');
+register(invisibleCyl(0.3, -0.18,-0.62,0.48), 'radar', 'Radar mmWave — detección automática de proximidad, distancia y respiración');
+register(invisibleCyl(0.34, 1.18,-0.6,0.48), 'mic', 'Micrófono MEMS — inicia el diálogo de triaje por voz');
+register(invisibleCyl(0.44, -1.42,-0.6,0.48), 'speaker', 'Altavoz — repite el último mensaje');
+const usbHit = new THREE.Mesh(new THREE.BoxGeometry(0.14,0.34,0.6), new THREE.MeshBasicMaterial({ visible:false }));
+usbHit.position.set(-2.12,-0.5,0); device.add(usbHit);
+register(usbHit,'usb','Puerto USB-C — carga cableada de respaldo (simulación)');
+for(const k of Object.keys(leds)){
+  const y = ledDefs.find(d=>d.key===k).y;
+  register(invisibleCyl(0.16, 1.6,y,0.48),'led','Indicador LED — estado del triaje: '+k.toUpperCase());
+}
+register(btnNoise3D,'noise','Botón físico — Anular Ruido del entorno');
+register(btnCalib3D,'calib','Botón físico — Calibrar Temp Ambiental de la carpa');
 interactive.push(wingL, wingR);
 
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
-let hovered = null;
 const tooltip = document.getElementById('tooltip');
-
 function setPointer(ev){
   const rect = renderer.domElement.getBoundingClientRect();
-  pointer.x = ((ev.clientX-rect.left)/rect.width)*2 - 1;
-  pointer.y = -((ev.clientY-rect.top)/rect.height)*2 + 1;
+  pointer.x = ((ev.clientX-rect.left)/rect.width)*2-1;
+  pointer.y = -((ev.clientY-rect.top)/rect.height)*2+1;
 }
 function pickInteractive(){
   raycaster.setFromCamera(pointer, camera);
   const hits = raycaster.intersectObjects(interactive, true);
   for(const h of hits){
     let o = h.object;
-    while(o && o.userData.action===undefined && !o.userData.isWing && o.parent){ o = o.parent; }
+    while(o && o.userData.action===undefined && !o.userData.isWing && o.parent) o = o.parent;
     if(o && (o.userData.action || o.userData.isWing)) return o;
   }
   return null;
 }
-
-/* Arrastre de alas (ratón / táctil) */
-let wingDrag = null;
-let lastPointerX = 0, lastPointerY = 0;
-
+let wingDrag = null, lastPX = 0, lastPY = 0;
 renderer.domElement.addEventListener('pointerdown', (ev)=>{
-  if(renderer.xr.isPresenting) return; // en XR se usan los controladores
+  if(renderer.xr.isPresenting) return;
   setPointer(ev);
   const obj = pickInteractive();
   if(obj && obj.userData.isWing){
-    wingDrag = obj;
-    lastPointerX = ev.clientX; lastPointerY = ev.clientY;
-    controls.enabled = false;
-    renderer.domElement.style.cursor = 'grabbing';
-    ev.preventDefault();
+    wingDrag = obj; lastPX = ev.clientX; lastPY = ev.clientY;
+    controls.enabled = false; renderer.domElement.style.cursor='grabbing'; ev.preventDefault();
   } else if(obj && obj.userData.action){
     performAction(obj.userData.action);
   }
 });
 renderer.domElement.addEventListener('pointermove', (ev)=>{
   if(wingDrag){
-    const dx = ev.clientX - lastPointerX;
-    const dy = ev.clientY - lastPointerY;
-    lastPointerX = ev.clientX; lastPointerY = ev.clientY;
-    wingDrag.rotation.y += dx * 0.011;
-    wingDrag.userData.tilt.rotation.x = THREE.MathUtils.clamp(
-      wingDrag.userData.tilt.rotation.x + dy*0.009, -0.9, 0.9);
+    wingDrag.rotation.y += (ev.clientX-lastPX)*0.011; lastPX = ev.clientX;
+    wingDrag.userData.tilt.rotation.x = THREE.MathUtils.clamp(wingDrag.userData.tilt.rotation.x + (ev.clientY-lastPY)*0.009, -.9, .9);
+    lastPY = ev.clientY;
     return;
   }
   if(renderer.xr.isPresenting) return;
   setPointer(ev);
   const obj = pickInteractive();
-  hovered = obj;
   if(obj){
-    renderer.domElement.style.cursor = 'pointer';
-    tooltip.style.display = 'block';
+    renderer.domElement.style.cursor='pointer';
+    tooltip.style.display='block';
     tooltip.textContent = obj.userData.label || 'Ala solar — arrastra para alinearla con el sol';
-    tooltip.style.left = Math.min(ev.clientX+14, window.innerWidth-260)+'px';
+    tooltip.style.left = Math.min(ev.clientX+14, window.innerWidth-270)+'px';
     tooltip.style.top  = (ev.clientY+14)+'px';
-  } else {
-    renderer.domElement.style.cursor = 'grab';
-    tooltip.style.display = 'none';
-  }
+  } else { renderer.domElement.style.cursor='grab'; tooltip.style.display='none'; }
 });
-window.addEventListener('pointerup', ()=>{
-  if(wingDrag){ wingDrag=null; controls.enabled=true; renderer.domElement.style.cursor='grab'; }
-});
+window.addEventListener('pointerup', ()=>{ if(wingDrag){ wingDrag=null; controls.enabled=true; renderer.domElement.style.cursor='grab'; }});
 renderer.domElement.addEventListener('contextmenu', e=>e.preventDefault());
 
 /* ============================================================
-   5. WEBXR: BOTÓN DUAL AR/VR Y CONTROLADORES
+   5. WEBXR · BOTÓN AR/VR · CONTROLADORES
 ============================================================ */
 const xrBtn = document.getElementById('xrBtn');
 let hiddenXRButton = null;
 (async function setupXR(){
   if(!('xr' in navigator) || !navigator.xr){
-    xrBtn.disabled = true;
-    xrBtn.querySelector('.lbl').textContent = 'WebXR no disponible en este equipo';
-    return;
+    xrBtn.disabled = true; xrBtn.querySelector('.lbl').textContent='WebXR no disponible en este equipo'; return;
   }
   let arOK=false, vrOK=false;
   try{ arOK = await navigator.xr.isSessionSupported('immersive-ar'); }catch(e){}
   try{ vrOK = await navigator.xr.isSessionSupported('immersive-vr'); }catch(e){}
   if(arOK){
-    hiddenXRButton = ARButton.createButton(renderer, {
-      optionalFeatures:['dom-overlay','local-floor'],
-      domOverlay:{ root:document.body }
-    });
+    hiddenXRButton = ARButton.createButton(renderer, { optionalFeatures:['dom-overlay','local-floor'], domOverlay:{ root:document.body } });
   } else if(vrOK){
     hiddenXRButton = VRButton.createButton(renderer);
   } else {
-    xrBtn.disabled = true;
-    xrBtn.querySelector('.lbl').textContent = 'AR/VR no soportado por este navegador';
-    return;
+    xrBtn.disabled = true; xrBtn.querySelector('.lbl').textContent='AR/VR no soportado por este navegador'; return;
   }
-  hiddenXRButton.style.display = 'none';
+  hiddenXRButton.style.display='none';
   document.body.appendChild(hiddenXRButton);
 })();
-
 xrBtn.addEventListener('click', ()=>{
-  if(!hiddenXRButton){
-    toast('WebXR no está disponible. Puedes jugar en Modo Arcade 3D.', 'warn');
-    return;
-  }
+  if(!hiddenXRButton){ toast('WebXR no disponible. Juega en Modo Arcade 3D.','warn'); return; }
   hiddenXRButton.click();
 });
-renderer.xr.addEventListener('sessionstart', onXRSessionStart);
-renderer.xr.addEventListener('sessionend', onXRSessionEnd);
-
-function onXRSessionStart(){
+renderer.xr.addEventListener('sessionstart', ()=>{
   document.body.classList.add('xr');
-  xrBtn.querySelector('.lbl').textContent = 'Salir de Realidad Mixta';
-  controls.enabled = false;
-  grid.visible = false; floor.visible = false; particles.visible = false;
-  device.scale.setScalar(0.42);
-  device.position.set(0, -0.15, -0.95);
-  toast('Realidad Mixta activa — apunta y pulsa el gatillo para interactuar');
-  speak('Realidad mixta activada. Estación VITAL lista para triaje.');
-}
-function onXRSessionEnd(){
+  xrBtn.querySelector('.lbl').textContent='Salir de Realidad Mixta';
+  controls.enabled=false;
+  tentGroup.visible=false; sunBeamPivot.visible=false; dust.visible=false;
+  device.scale.setScalar(.42); device.position.set(0,-.15,-.95);
+  toast('Realidad Mixta activa — apunta y pulsa el gatillo');
+  say('Realidad mixta activada. Estación VITAL lista para triaje.');
+});
+renderer.xr.addEventListener('sessionend', ()=>{
   document.body.classList.remove('xr');
-  xrBtn.querySelector('.lbl').textContent = 'Entrar a Realidad Mixta / AR';
-  controls.enabled = true;
-  grid.visible = true; floor.visible = true; particles.visible = true;
-  device.scale.setScalar(1);
-  device.position.set(0,0,0);
+  xrBtn.querySelector('.lbl').textContent='Entrar a Realidad Mixta / AR';
+  controls.enabled=true;
+  tentGroup.visible=true; sunBeamPivot.visible=true; dust.visible=true;
+  device.scale.setScalar(1); device.position.set(0,0,0);
   toast('Modo Arcade 3D restaurado');
-}
-
-/* Controladores WebXR con rayo */
+});
 const controllers = [];
 for(let i=0;i<2;i++){
   const c = renderer.xr.getController(i);
-  const lineGeo = new THREE.BufferGeometry().setFromPoints([
-    new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-3.2)
-  ]);
-  const line = new THREE.Line(lineGeo, new THREE.LineBasicMaterial({ color:0x35f0d0, transparent:true, opacity:0.8 }));
-  const tip = new THREE.Mesh(new THREE.RingGeometry(0.035,0.06,24),
-    new THREE.MeshBasicMaterial({ color:0x35f0d0, side:THREE.DoubleSide }));
-  tip.position.z = -3.2;
+  const line = new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-3.2)]),
+    new THREE.LineBasicMaterial({ color:0x35f0d0, transparent:true, opacity:.8 }));
+  const tip = new THREE.Mesh(new THREE.RingGeometry(.035,.06,24), new THREE.MeshBasicMaterial({ color:0x35f0d0, side:THREE.DoubleSide }));
+  tip.position.z=-3.2;
   c.add(line, tip);
-  c.userData = { wing:null, tip };
+  c.userData = { wing:null };
   c.addEventListener('selectstart', ()=>onXRSelect(c,true));
   c.addEventListener('selectend',   ()=>onXRSelect(c,false));
-  scene.add(c);
-  controllers.push(c);
+  scene.add(c); controllers.push(c);
 }
 function onXRSelect(controller, isStart){
-  const tempRay = new THREE.Raycaster();
+  const rc = new THREE.Raycaster();
   const origin = new THREE.Vector3(), dir = new THREE.Vector3();
   controller.getWorldPosition(origin);
-  controller.getWorldDirection(dir).negate(); // el rayo WebXR apunta al eje -Z del controlador
-  tempRay.set(origin, dir);
-  const hits = tempRay.intersectObjects(interactive, true);
+  controller.getWorldDirection(dir).negate(); // el rayo WebXR apunta al -Z del controlador
+  rc.set(origin, dir);
   let target = null;
-  for(const h of hits){
+  for(const h of rc.intersectObjects(interactive, true)){
     let o = h.object;
-    while(o && o.userData.action===undefined && !o.userData.isWing && o.parent){ o=o.parent; }
+    while(o && o.userData.action===undefined && !o.userData.isWing && o.parent) o = o.parent;
     if(o && (o.userData.action || o.userData.isWing)){ target=o; break; }
   }
   if(isStart){
-    if(target && target.userData.isWing){
-      controller.userData.wing = target;
-    } else if(target && target.userData.action){
-      performAction(target.userData.action);
-    }
-  } else {
-    controller.userData.wing = null;
-  }
+    if(target && target.userData.isWing) controller.userData.wing = target;
+    else if(target && target.userData.action) performAction(target.userData.action);
+  } else controller.userData.wing = null;
 }
 function updateXRWingDrag(){
   if(!renderer.xr.isPresenting) return;
-  const localDir = new THREE.Vector3();
-  const worldQuat = new THREE.Quaternion();
+  const localDir = new THREE.Vector3(), q = new THREE.Quaternion();
   for(const c of controllers){
-    const wing = c.userData.wing;
-    if(!wing) continue;
-    device.getWorldQuaternion(worldQuat);
-    c.getWorldDirection(localDir).negate().applyQuaternion(worldQuat.invert());
-    // la normal del panel es (sin θ, 0, cos θ) respecto al pivote → θ = atan2(x, z)
+    const wing = c.userData.wing; if(!wing) continue;
+    device.getWorldQuaternion(q);
+    c.getWorldDirection(localDir).negate().applyQuaternion(q.invert());
     wing.rotation.y = Math.atan2(localDir.x, localDir.z);
-    wing.userData.tilt.rotation.x = THREE.MathUtils.clamp(-localDir.y*0.9, -0.9, 0.9);
+    wing.userData.tilt.rotation.x = THREE.MathUtils.clamp(-localDir.y*.9, -.9, .9);
   }
 }
 
 /* ============================================================
-   6. AUDIO: PITOS WebAudio + VOZ EN ESPAÑOL
+   6. AUDIO · PITOS · COLA DE VOZ · RUIDO AMBIENTAL
 ============================================================ */
-let audioCtx = null;
-let muted = false;
-let lastPrompt = '';
+let audioCtx = null, muted = false;
 function ensureAudio(){
-  if(!audioCtx){
-    try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){}
-  }
+  if(!audioCtx){ try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); buildNoiseGraph(); }catch(e){} }
   if(audioCtx && audioCtx.state==='suspended') audioCtx.resume();
 }
-function beep(freq=880, dur=0.12, type='sine', gainV=0.12){
+function beep(freq=880, dur=.12, type='sine', gainV=.11){
   if(!audioCtx) return;
   const o = audioCtx.createOscillator(), g = audioCtx.createGain();
   o.type=type; o.frequency.value=freq;
   g.gain.setValueAtTime(gainV, audioCtx.currentTime);
-  g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime+dur);
+  g.gain.exponentialRampToValueAtTime(.0001, audioCtx.currentTime+dur);
   o.connect(g).connect(audioCtx.destination);
   o.start(); o.stop(audioCtx.currentTime+dur);
 }
@@ -822,108 +835,184 @@ function triageSound(key){
   if(!audioCtx) return;
   if(key==='verde'){ beep(660,.12); setTimeout(()=>beep(880,.16),120); }
   else if(key==='amarillo'){ beep(520,.14); setTimeout(()=>beep(520,.14),170); }
-  else { beep(300,.18,'sawtooth',.14); setTimeout(()=>beep(220,.28,'sawtooth',.14),180); }
+  else { beep(300,.18,'sawtooth',.13); setTimeout(()=>beep(220,.28,'sawtooth',.13),180); }
 }
+/* Voz en español con cola estricta (nunca se solapan ni se cortan) */
 let esVoice = null;
 function loadVoices(){
   if(!('speechSynthesis' in window)) return;
   const vs = window.speechSynthesis.getVoices();
   esVoice = vs.find(v=>/^es[-_](CO|MX|ES)/i.test(v.lang)) || vs.find(v=>v.lang && v.lang.toLowerCase().startsWith('es')) || null;
 }
-if('speechSynthesis' in window){
-  loadVoices();
-  window.speechSynthesis.onvoiceschanged = loadVoices;
-}
-function speak(text){
-  lastPrompt = text;
+if('speechSynthesis' in window){ loadVoices(); window.speechSynthesis.onvoiceschanged = loadVoices; }
+const speechQueue = [];
+let speaking = false;
+function enqueueSpeech(text, patient=false){
   if(muted || !('speechSynthesis' in window)) return;
-  try{
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang='es-CO'; if(esVoice) u.voice = esVoice;
-    u.rate=1.04; u.pitch=1.0;
-    window.speechSynthesis.speak(u);
-  }catch(e){}
+  speechQueue.push({ text, patient });
+  pumpSpeech();
+}
+function pumpSpeech(){
+  if(speaking || muted || speechQueue.length===0) return;
+  const item = speechQueue.shift();
+  const u = new SpeechSynthesisUtterance(item.text);
+  u.lang='es-CO'; if(esVoice) u.voice = esVoice;
+  if(item.patient){ u.pitch=.78; u.rate=.96; } else { u.pitch=1.02; u.rate=1.04; }
+  u.onend = u.onerror = ()=>{ speaking=false; pumpSpeech(); };
+  speaking = true;
+  window.speechSynthesis.speak(u);
 }
 document.getElementById('muteBtn').addEventListener('click', (e)=>{
   ensureAudio();
   muted = !muted;
-  const btn = e.currentTarget;
-  btn.querySelector('.ico').textContent = muted ? '🔇' : '🔊';
-  btn.querySelector('.lbl').textContent = muted ? 'Activar voz' : 'Silenciar voz';
-  if(muted && 'speechSynthesis' in window) window.speechSynthesis.cancel();
-  else speak('Voz activada. Estación VITAL en línea.');
+  e.currentTarget.querySelector('.ico').textContent = muted ? '🔇' : '🔊';
+  e.currentTarget.querySelector('.lbl').textContent = muted ? 'Activar voz' : 'Silenciar voz';
+  if(muted && 'speechSynthesis' in window){ window.speechSynthesis.cancel(); speechQueue.length=0; speaking=false; }
+  else say('Voz activada. Estación VITAL en línea.');
 });
 
+/* Ruido ambiental: generador/viento con picos periódicos (reloj de performance, único) */
+let noiseGain=null, noiseFilter=null, noiseLevel=0, noiseFilterOn=false;
+let nextNoiseSpikeT = 0, noiseSpikeEndT = 0;
+function buildNoiseGraph(){
+  const len = audioCtx.sampleRate * 2;
+  const buf = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
+  const data = buf.getChannelData(0);
+  let last = 0;
+  for(let i=0;i<len;i++){ const w = Math.random()*2-1; last = (last + 0.02*w)/1.02; data[i]=last*3.4; } // ruido marrón
+  const src = audioCtx.createBufferSource();
+  src.buffer = buf; src.loop = true;
+  noiseFilter = audioCtx.createBiquadFilter();
+  noiseFilter.type='lowpass'; noiseFilter.frequency.value=18000;
+  noiseGain = audioCtx.createGain(); noiseGain.gain.value=0;
+  src.connect(noiseFilter).connect(noiseGain).connect(audioCtx.destination);
+  src.start();
+  nextNoiseSpikeT = performance.now()/1000 + 16 + Math.random()*10;
+  noiseSpikeEndT = 0;
+}
+function effectiveNoise(){
+  if(!audioCtx) return 0;
+  return noiseLevel * (noiseFilterOn ? 0.15 : 1);
+}
+function toggleNoiseFilter(){
+  ensureAudio();
+  noiseFilterOn = !noiseFilterOn;
+  const btn = document.getElementById('noiseBtn');
+  btn.classList.toggle('on', noiseFilterOn);
+  btn.querySelector('.ico').textContent = noiseFilterOn ? '🔈' : '🔇';
+  if(noiseFilterOn){
+    if(noiseFilter) noiseFilter.frequency.setTargetAtTime(380, audioCtx.currentTime, .15);
+    beep(900,.08); say('Filtro de cancelación de ruido activado.');
+  } else {
+    if(noiseFilter) noiseFilter.frequency.setTargetAtTime(18000, audioCtx.currentTime, .15);
+    say('Filtro de cancelación de ruido desactivado.');
+  }
+}
+document.getElementById('noiseBtn').addEventListener('click', toggleNoiseFilter);
+
 /* ============================================================
-   7. LÓGICA DEL JUEGO
+   7. MODELO DE JUEGO · PACIENTES · COLA DE MENSAJES OLED
 ============================================================ */
 const NAMES = ['María Fernández','Carlos Rivas','Lina Torres','Jorge Medina','Ana Beltrán',
   'Diego Paredes','Lucía Gómez','Andrés Salazar','Valeria Ruiz','Esteban Niño'];
-const SYMPTOM_POOL = ['Fiebre','Tos seca','Dificultad respiratoria','Dolor de cabeza','Fatiga',
-  'Pérdida de olfato','Dolor de garganta','Escalofríos','Náuseas','Congestión nasal'];
+const SYMPTOMS = {
+  0: ['Control preventivo','Sin síntomas activos'],
+  1: ['Fiebre','Tos seca','Dolor de cuerpo','Fatiga'],
+  2: ['Fiebre alta','Dificultad respiratoria','Opresión torácica','Escalofríos','Confusión']
+};
 const QUEUE_SIZE = 5;
+const QUESTIONS = [
+  {
+    q:'¿Presenta dificultad para respirar o dolor torácico?',
+    opts:[
+      'No, respiro sin dificultad y no tengo dolor.',
+      'Me falta el aire al caminar, pero no siento dolor.',
+      'Sí, me cuesta respirar incluso al hablar y siento opresión.'
+    ]
+  },
+  {
+    q:'¿Ha tenido fiebre o tos en las últimas horas?',
+    opts:[
+      'No he presentado fiebre ni tos.',
+      'Tengo tos seca y fiebre desde ayer.',
+      'Fiebre alta, tos persistente y escalofríos.'
+    ]
+  },
+  {
+    q:'¿Cómo describe su estado general en este momento?',
+    opts:[
+      'Me siento bien, solo vine por control.',
+      'Estoy cansado y con dolor en el cuerpo.',
+      'Me siento desorientado, mareado y muy débil.'
+    ]
+  }
+];
+const DISNEA_LABEL = ['Ninguna','Leve a moderada','Severa'];
 
 const game = {
-  state:'intro',          // intro | playing | between | summary | off
-  patients:[],
-  index:0,
-  score:0,
-  correctCount:0,
-  answered:0,
+  state:'intro', // intro | playing | off | summary
+  patients:[], index:0, score:0, correctCount:0, answered:0, qaHits:0,
   steps:{ radar:false, ir:false, mic:false },
-  measuring:{ radar:0, ir:0, mic:0 },   // timestamp de fin, 0 = inactivo
-  readings:{ distance:0, breath:0, temp:0, spo2:0 },
+  measuring:{ radar:0, ir:0, mic:0 },
+  approach:{ active:false, start:0 },
+  qa:{ active:false, qIndex:0, picks:[], analyzing:false, analyzeEnd:0 },
+  readings:{ distance:0, breath:0, temp:0, measuredTemp:0, dyspnea:'—', confidence:0 },
   activeLed:null,
-  battery:70,
-  solarHarvested:0,
-  startTime:0,
-  missionMs:0,
-  triageDone:false,
+  battery:75, solarHarvested:0,
+  startTime:0, triageDone:false,
+  ambient:26, calibBaseline:26, calibAt:0,
 };
-
 function rnd(a,b){ return a + Math.random()*(b-a); }
-function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+function round1(v){ return +v.toFixed(1); }
+
 function makePatient(i){
-  let temp, breath;
   const roll = Math.random();
-  if(roll < 0.34){ temp = rnd(36.0,37.4); breath = Math.round(rnd(10,18)); }       // sano
-  else if(roll < 0.7){ temp = rnd(37.8,38.6); breath = Math.round(rnd(18,24)); }   // alerta amarilla
-  else { temp = rnd(38.6,40.2); breath = Math.round(rnd(24,31)); }                 // crítica
-  // redondear ANTES de clasificar para que el triaje coincida siempre con los valores mostrados
-  temp = +temp.toFixed(1);
-  const symptoms = [];
-  const n = 2 + Math.floor(Math.random()*2);
-  while(symptoms.length < n){
-    const s = pick(SYMPTOM_POOL);
-    if(!symptoms.includes(s)) symptoms.push(s);
-  }
-  if(temp >= 38.5 && !symptoms.includes('Fiebre')) symptoms[0]='Fiebre';
-  if(breath >= 24 && !symptoms.includes('Dificultad respiratoria')) symptoms.push('Dificultad respiratoria');
-  const correct =
-    (temp >= 38.5 || breath >= 26) ? 'rojo' :
-    (temp >= 37.8 || breath >= 21 || symptoms.includes('Dificultad respiratoria')) ? 'amarillo' : 'verde';
+  const sev = roll<0.34 ? 0 : roll<0.69 ? 1 : 2;
+  let temp, breath;
+  if(sev===0){ temp = round1(rnd(36.0,37.4)); breath = Math.round(rnd(10,17)); }
+  else if(sev===1){ temp = round1(rnd(37.8,38.4)); breath = Math.round(rnd(18,23)); }
+  else { temp = round1(rnd(38.6,40.1)); breath = Math.round(rnd(24,30)); }
+  const pool = SYMPTOMS[sev];
+  const symptoms = [pool[0], pool[1]];
+  if(pool.length>2 && Math.random()<.7) symptoms.push(pick(pool.slice(2)));
   return {
-    id:'A-0'+(i+1),
-    name: NAMES[i % NAMES.length],
-    age: Math.round(rnd(19,78)),
-    symptoms,
-    temp,
-    breath,
-    distance:+rnd(0.42,1.05).toFixed(2),
-    spo2: Math.round(rnd(90,99)),
-    correct,
+    id:'A-0'+(i+1), name:NAMES[i%NAMES.length], age:Math.round(rnd(19,78)),
+    severity:sev, correct:['verde','amarillo','rojo'][sev],
+    symptoms, temp, breath, dyspnea: DISNEA_LABEL[sev],
+    distance: round1(rnd(0.45,0.95))
   };
 }
-function buildQueue(){
-  game.patients = [];
-  for(let i=0;i<QUEUE_SIZE;i++) game.patients.push(makePatient(i));
+/* Regla canónica de triaje (también usada por las pruebas) */
+function triageFor(p){
+  if(p.temp>=38.5 || p.breath>=24 || p.severity===2) return 'rojo';
+  if(p.temp>=37.8 || p.breath>=18 || p.severity===1) return 'amarillo';
+  return 'verde';
 }
-function currentPatient(){ return game.patients[game.index]; }
+function buildQueue(){ game.patients = []; for(let i=0;i<QUEUE_SIZE;i++) game.patients.push(makePatient(i)); }
+function cur(){ return game.patients[game.index]; }
 
-function resetSteps(){
+/* ---------- Cola de mensajes del OLED (mínimo 3,5 s) ---------- */
+const oledMsgs = [];
+let oledCur = null, oledCurAt = 0;
+function say(text, { voice=true, patient=false, minMs=3600 }={}){
+  oledMsgs.push({ text, minMs });
+  if(voice) enqueueSpeech(text, patient);
+}
+function updateMessageQueue(now){
+  if(!oledCur && oledMsgs.length){
+    oledCur = oledMsgs.shift(); oledCurAt = now;
+  } else if(oledCur && oledMsgs.length && now-oledCurAt >= oledCur.minMs){
+    oledCur = oledMsgs.shift(); oledCurAt = now;
+  }
+}
+
+/* ---------- Ciclo de paciente ---------- */
+function resetPatientUI(){
   game.steps = { radar:false, ir:false, mic:false };
   game.measuring = { radar:0, ir:0, mic:0 };
+  game.approach = { active:false, start:0 };
+  game.qa = { active:false, qIndex:0, picks:[], analyzing:false, analyzeEnd:0 };
   game.triageDone = false;
   setLED(null);
   for(const k of ['radar','ir','mic']){
@@ -932,41 +1021,231 @@ function resetSteps(){
   }
   document.querySelectorAll('.tbtn').forEach(b=>b.disabled=true);
   document.getElementById('nextBtn').style.display='none';
+  document.getElementById('qaBox').classList.add('hidden');
+  document.getElementById('qaOptions').innerHTML='';
+  document.getElementById('qaAnalyzing').style.display='none';
 }
 function loadPatient(){
-  resetSteps();
-  const p = currentPatient();
+  resetPatientUI();
+  game._triagePrompted = false;
+  const p = cur();
   document.getElementById('pName').textContent = p.name;
   document.getElementById('pMeta').textContent = `ID ${p.id} · ${p.age} años`;
-  document.getElementById('pSymptoms').innerHTML =
-    p.symptoms.map(s=>`<span class="chip">${s}</span>`).join('');
+  document.getElementById('pSymptoms').innerHTML = p.symptoms.map(s=>`<span class="chip">${s}</span>`).join('');
   document.getElementById('patientVal').textContent = `${game.index+1} / ${QUEUE_SIZE}`;
-  toast(`Paciente ${p.id}: acérquese a la estación V.I.T.A.L.`);
-  speak(`Paciente ${p.id}. Por favor acérquese a la estación y permanezca quieto.`);
+  /* El radar despierta V.I.T.A.L. automáticamente con la aproximación */
+  game.approach = { active:true, start:performance.now() };
+  document.getElementById('step-radar').className='active';
+  say(`Paciente ${p.id} aproximándose. Radar de proximidad activado.`);
+  setTimeout(()=>say('Permanezca quieto, por favor. La medición es sin contacto.'), 1200);
+}
+function completeProximity(now){
+  const p = cur();
+  game.approach.active = false;
+  game.steps.radar = true;
+  game.readings.distance = p.distance;
+  game.readings.breath = p.breath;
+  document.getElementById('step-radar').className='done';
+  document.getElementById('val-radar').textContent = `${p.distance} m · ${p.breath} rpm`;
+  beep(1200,.09); setTimeout(()=>beep(1450,.11),180);
+  say(`Paciente detectado a ${p.distance} metros. Frecuencia respiratoria: ${p.breath} respiraciones por minuto.`);
 }
 
+/* ---------- Acciones de sensores ---------- */
 function canAct(){
   ensureAudio();
-  if(game.state==='intro'){ toast('Inicia la misión para operar la estación.','warn'); return false; }
-  if(game.state==='summary'){ return false; }
-  if(game.battery <= 0){ toast('Batería agotada — alinea las alas solares con el sol para recargar.','crit'); return false; }
+  if(game.state==='intro'){ toast('Inicia la guardia para operar la estación.','warn'); return false; }
+  if(game.state==='summary') return false;
+  if(game.battery<=0){ toast('Batería agotada — alinea las alas solares con el sol.','crit'); return false; }
   if(game.triageDone){ toast('Triaje completado — avanza al siguiente paciente.','warn'); return false; }
   return true;
 }
-function drainBattery(pct){
-  game.battery = Math.max(0, game.battery - pct);
+function drain(v){ game.battery = Math.max(0, game.battery-v); }
+
+function startRadar(){
+  if(!canAct()) return;
+  if(game.approach.active){ toast('El radar ya está siguiendo la aproximación…'); return; }
+  if(game.steps.radar){ toast('El radar ya completó la detección. Puedes volver a escanear.'); }
+  drain(2);
+  game.measuring.radar = performance.now()+1500;
+  document.getElementById('step-radar').className='active';
+  beep(1200,.08);
+  say('Reescaneo radar en curso.');
+}
+function startIR(){
+  if(!canAct()) return;
+  if(game.steps.ir){ toast('La temperatura ya fue registrada.'); return; }
+  if(!game.steps.radar){ toast('Espera a que el radar detecte al paciente.','warn'); return; }
+  const drift = game.ambient - game.calibBaseline;
+  if(Math.abs(drift) > 4){
+    toast('El calor de la carpa desvía el IR: pulsa "Calibrar Temp Ambiental".','crit');
+    say('Alerta térmica. Se requiere calibración de temperatura ambiental antes del infrarrojo.');
+    return;
+  }
+  drain(3);
+  game.measuring.ir = performance.now()+2100;
+  document.getElementById('step-ir').className='active';
+  beep(980,.1); setTimeout(()=>beep(1180,.12),250);
+  say('Midiendo temperatura corporal. Mantenga la frente cerca del sensor infrarrojo.');
+}
+function finishIR(now){
+  const p = cur();
+  /* Con calibración vigida (|deriva| ≤ 4 °C) la lectura es exacta: sin sesgo residual */
+  const measured = p.temp;
+  game.steps.ir = true; game.measuring.ir = 0;
+  game.readings.temp = p.temp; game.readings.measuredTemp = measured;
+  document.getElementById('step-ir').className='done';
+  document.getElementById('val-ir').textContent = `${measured.toFixed(1)} °C`;
+  say(`Temperatura registrada: ${measured.toFixed(1).replace('.',' punto ')} grados centígrados.`);
 }
 
-/* Acciones de sensores */
+/* ---------- Diálogo de voz Q&A ---------- */
+function startMic(){
+  if(!canAct()) return;
+  if(game.qa.active){ toast('El diálogo está en curso.'); return; }
+  if(game.steps.mic){ toast('El análisis de diálogo ya fue realizado.'); return; }
+  if(!game.steps.ir){ toast('Primero completa la medición de temperatura IR.','warn'); return; }
+  if(effectiveNoise() > 0.55){
+    toast('Pico de ruido: pulsa "Anular Ruido" antes del análisis de voz.','crit');
+    say('Ruido ambiental elevado. Active el filtro de cancelación antes del análisis de voz.');
+    return;
+  }
+  drain(5);
+  game.qa = { active:true, qIndex:0, picks:[], analyzing:false, analyzeEnd:0 };
+  document.getElementById('step-mic').className='active';
+  document.getElementById('qaBox').classList.remove('hidden');
+  askQuestion(0);
+}
+function askQuestion(i){
+  const q = QUESTIONS[i];
+  document.getElementById('qaProgress').textContent = `PREGUNTA ${i+1} / ${QUESTIONS.length}`;
+  document.getElementById('qaQuestion').textContent = q.q;
+  const wrap = document.getElementById('qaOptions');
+  wrap.innerHTML='';
+  q.opts.forEach((opt, idx)=>{
+    const b = document.createElement('button');
+    b.className='qopt';
+    b.innerHTML = `<span class="play">🔊</span><span>${opt}</span>`;
+    b.addEventListener('click', ()=>chooseAnswer(idx));
+    wrap.appendChild(b);
+  });
+  say(q.q);
+}
+function chooseAnswer(idx){
+  if(!game.qa.active || game.qa.analyzing) return;
+  ensureAudio();
+  document.querySelectorAll('.qopt').forEach(b=>b.disabled=true); // evita doble registro
+  const p = cur();
+  const q = QUESTIONS[game.qa.qIndex];
+  game.qa.picks.push(idx);
+  if(idx === p.severity){ game.qaHits++; game.score += 15; document.getElementById('scoreVal').textContent = game.score; }
+  /* El paciente "habla" la respuesta seleccionada */
+  say(q.opts[idx], { patient:true, minMs:3800 });
+  beep(720,.07);
+  game.qa.qIndex++;
+  if(game.qa.qIndex < QUESTIONS.length){
+    setTimeout(()=>{ if(game.qa.active && !game.qa.analyzing) askQuestion(game.qa.qIndex); }, 900);
+  } else {
+    beginAcousticAnalysis();
+  }
+}
+function beginAcousticAnalysis(){
+  game.qa.analyzing = true;
+  game.qa.analyzeEnd = performance.now()+2600;
+  document.getElementById('qaOptions').innerHTML='';
+  document.getElementById('qaAnalyzing').style.display='block';
+  beep(620,.08); setTimeout(()=>beep(760,.08),180); setTimeout(()=>beep(920,.1),360);
+  say('Analizando patrones de voz, tos y esfuerzo respiratorio.');
+}
+function finishAcousticAnalysis(){
+  const p = cur();
+  game.qa.analyzing = false;
+  game.qa.active = false;
+  game.steps.mic = true;
+  document.getElementById('qaAnalyzing').style.display='none';
+  document.getElementById('qaBox').classList.add('hidden');
+  document.getElementById('step-mic').className='done';
+  const noisePenalty = effectiveNoise() > .3 ? .18 : 0;
+  const confidence = Math.round((1 - noisePenalty - Math.abs(game.qa.picks[0]-p.severity)*0.12)*100);
+  game.readings.dyspnea = p.dyspnea;
+  game.readings.confidence = THREE.MathUtils.clamp(confidence, 45, 99);
+  document.getElementById('val-mic').textContent = `Disnea ${p.dyspnea} · ${game.readings.confidence}%`;
+  say(`Evaluación acústica completada. Disnea: ${p.dyspnea}. Confianza del análisis: ${game.readings.confidence} por ciento.`);
+}
+
+/* ---------- Calibración térmica ---------- */
+function calibrate(){
+  if(!canAct()) return;
+  drain(2);
+  game.calibAt = performance.now();
+  document.getElementById('calibBtn').classList.add('on');
+  beep(520,.1); setTimeout(()=>beep(780,.14),200);
+  say('Calibrando línea base térmica de la carpa. No tape el sensor.');
+  setTimeout(()=>{
+    game.calibBaseline = game.ambient;
+    document.getElementById('calibBtn').classList.remove('on');
+    toast(`Línea térmica calibrada: ${game.ambient.toFixed(1)} °C`);
+    say(`Calibración completada. Temperatura ambiente de referencia: ${game.ambient.toFixed(1)} grados.`);
+  }, 2200);
+}
+document.getElementById('calibBtn').addEventListener('click', calibrate);
+
+/* ---------- LEDs y triaje ---------- */
+function setLED(key){
+  game.activeLed = key;
+  for(const k of Object.keys(leds)){
+    leds[k].bulb.material.emissiveIntensity = (k===key)?2.6:.12;
+    leds[k].light.intensity = (k===key)?1.6:0;
+  }
+}
+document.querySelectorAll('.tbtn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    if(!canAct() || game.triageDone) return;
+    const choice = btn.dataset.t, p = cur();
+    game.triageDone = true; game.answered++;
+    setLED(p.correct); triageSound(p.correct);
+    document.querySelectorAll('.tbtn').forEach(b=>b.disabled=true);
+    if(choice === p.correct){
+      const bonus = Math.max(0, 40 - Math.floor((performance.now()-game._patientStart)/250));
+      const gained = 100 + bonus;
+      game.score += gained; game.correctCount++;
+      toast(`✔ Correcto (+${gained} pts) — triaje ${p.correct.toUpperCase()}`);
+      say(`Triaje ${labelTriage(p.correct)}. ${voiceTriage(p.correct)}`);
+    } else {
+      game.score += 15;
+      toast(`✘ El triaje correcto era ${p.correct.toUpperCase()} (+15 participación)`,'crit');
+      say(`Atención. El triaje correcto es ${labelTriage(p.correct)}. ${voiceTriage(p.correct)}`);
+    }
+    document.getElementById('scoreVal').textContent = game.score;
+    document.getElementById('nextBtn').style.display='block';
+    document.getElementById('nextBtn').textContent =
+      (game.index === QUEUE_SIZE-1) ? 'FINALIZAR GUARDIA ✓' : 'SIGUIENTE PACIENTE →';
+  });
+});
+function labelTriage(k){ return ({verde:'verde, paciente estable',amarillo:'amarillo, monitoreo',rojo:'rojo, alerta crítica'})[k]; }
+function voiceTriage(k){
+  return ({verde:'Continúe con el siguiente paciente.',
+           amarillo:'Mantenga al paciente en observación.',
+           rojo:'Active el protocolo de emergencia de inmediato.'})[k];
+}
+document.getElementById('nextBtn').addEventListener('click', ()=>{
+  ensureAudio();
+  if(game.index === QUEUE_SIZE-1){ finishMission(); return; }
+  game.index++; game._patientStart = performance.now(); loadPatient();
+});
+
+/* ---------- Acciones genéricas (clic 3D y XR) ---------- */
 function performAction(action){
   switch(action){
     case 'radar': startRadar(); break;
     case 'ir': startIR(); break;
     case 'mic': startMic(); break;
+    case 'noise': toggleNoiseFilter(); break;
+    case 'calib': calibrate(); break;
     case 'speaker':
       ensureAudio();
-      if(lastPrompt){ speak(lastPrompt); beep(740,.08); }
-      else { speak('Estación VITAL en línea. Lista para iniciar el triaje.'); }
+      if(oledCur) say(oledCur.text, { voice:true, minMs:3600 });
+      else speakFallback();
       break;
     case 'usb':
       ensureAudio(); beep(500,.1);
@@ -977,157 +1256,43 @@ function performAction(action){
       break;
   }
 }
-function startRadar(){
-  if(!canAct()) return;
-  if(game.steps.radar){ toast('El radar ya completó la medición.'); return; }
-  drainBattery(3);
-  game.measuring.radar = performance.now()+1900;
-  document.getElementById('step-radar').className='active';
-  beep(1200,.09); setTimeout(()=>beep(1400,.09),200);
-  speak('Midiendo distancia y frecuencia respiratoria con radar de ondas milimétricas.');
-}
-function startIR(){
-  if(!canAct()) return;
-  if(game.steps.ir){ toast('La temperatura ya fue registrada.'); return; }
-  drainBattery(3);
-  game.measuring.ir = performance.now()+2100;
-  document.getElementById('step-ir').className='active';
-  beep(980,.1); setTimeout(()=>beep(1180,.12),250);
-  speak('Midiendo temperatura corporal. Mantenga la frente cerca del sensor infrarrojo.');
-}
-function startMic(){
-  if(!canAct()) return;
-  if(game.steps.mic){ toast('El análisis de voz ya fue realizado.'); return; }
-  drainBattery(4);
-  game.measuring.mic = performance.now()+2600;
-  document.getElementById('step-mic').className='active';
-  beep(620,.08); setTimeout(()=>beep(760,.08),180); setTimeout(()=>beep(920,.1),360);
-  speak('Análisis de voz en curso. Responda al cuestionario de síntomas, por favor.');
-}
-function checkMeasurements(now){
-  const p = currentPatient();
-  if(game.measuring.radar && now >= game.measuring.radar && !game.steps.radar){
-    game.steps.radar = true; game.measuring.radar=0;
-    game.readings.distance = p.distance; game.readings.breath = p.breath;
-    document.getElementById('step-radar').className='done';
-    document.getElementById('val-radar').textContent = `${p.distance} m · ${p.breath} rpm`;
-    toast(`Radar: distancia ${p.distance} m · respiración ${p.breath} rpm`);
-  }
-  if(game.measuring.ir && now >= game.measuring.ir && !game.steps.ir){
-    game.steps.ir = true; game.measuring.ir=0;
-    game.readings.temp = p.temp;
-    document.getElementById('step-ir').className='done';
-    document.getElementById('val-ir').textContent = `${p.temp.toFixed(1)} °C`;
-    toast(`Temperatura registrada: ${p.temp.toFixed(1)} °C`);
-  }
-  if(game.measuring.mic && now >= game.measuring.mic && !game.steps.mic){
-    game.steps.mic = true; game.measuring.mic=0;
-    game.readings.spo2 = p.spo2;
-    document.getElementById('step-mic').className='done';
-    document.getElementById('val-mic').textContent = `SpO2 ${p.spo2}%`;
-    toast(`Voz analizada · saturación estimada ${p.spo2}%`);
-    speak(`Análisis completo. Saturación de oxígeno estimada, ${p.spo2} por ciento.`);
-  }
-  if(game.steps.radar && game.steps.ir && game.steps.mic && !game.triageDone){
-    document.querySelectorAll('.tbtn').forEach(b=>b.disabled=false);
-    if(!game._triagePrompted){
-      game._triagePrompted = true;
-      toast('Evaluación completa — seleccione el nivel de triaje.','warn');
-      speak('Evaluación completa. Seleccione el nivel de triaje.');
-    }
-  }
-}
+function speakFallback(){ say('Estación VITAL en línea. Lista para iniciar el triaje.'); }
 
-/* LEDs */
-function setLED(key){
-  game.activeLed = key;
-  for(const k of Object.keys(leds)){
-    const L = leds[k];
-    L.bulb.material.emissiveIntensity = (k===key) ? 2.6 : 0.12;
-    L.light.intensity = (k===key) ? 1.6 : 0;
-  }
-}
-
-/* Triaje */
-document.querySelectorAll('.tbtn').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    if(!canAct() || game.triageDone) return;
-    const choice = btn.dataset.t;
-    const p = currentPatient();
-    game.triageDone = true;
-    game.answered++;
-    setLED(p.correct);
-    triageSound(p.correct);
-    document.querySelectorAll('.tbtn').forEach(b=>b.disabled=true);
-    if(choice === p.correct){
-      const bonus = Math.max(0, 40 - Math.floor((performance.now()-game._patientStart)/250));
-      const gained = 100 + bonus;
-      game.score += gained;
-      game.correctCount++;
-      toast(`✔ Correcto (+${gained} pts) — triaje ${p.correct.toUpperCase()}`);
-      speak(`Triaje ${labelTriage(p.correct)}. ${voiceTriage(p.correct)}`);
-    } else {
-      game.score += 15;
-      toast(`✘ El triaje correcto era ${p.correct.toUpperCase()} (+15 participación)`, 'crit');
-      speak(`Atención. El triaje correcto es ${labelTriage(p.correct)}. ${voiceTriage(p.correct)}`);
-    }
-    document.getElementById('scoreVal').textContent = game.score;
-    document.getElementById('nextBtn').style.display='block';
-    document.getElementById('nextBtn').textContent =
-      (game.index === QUEUE_SIZE-1) ? 'FINALIZAR MISIÓN ✓' : 'SIGUIENTE PACIENTE →';
-  });
-});
-function labelTriage(k){ return ({verde:'verde, paciente estable',amarillo:'amarillo, monitoreo',rojo:'rojo, alerta crítica'})[k]; }
-function voiceTriage(k){
-  return ({
-    verde:'Continúe con el siguiente paciente.',
-    amarillo:'Mantenga al paciente en observación.',
-    rojo:'Active el protocolo de emergencia de inmediato.'
-  })[k];
-}
-
-document.getElementById('nextBtn').addEventListener('click', ()=>{
-  ensureAudio();
-  if(game.index === QUEUE_SIZE-1){ finishMission(); return; }
-  game.index++;
-  game._triagePrompted = false;
-  game._patientStart = performance.now();
-  loadPatient();
-});
-
-/* Inicio / reinicio / fin */
+/* ---------- Misión ---------- */
 function startMission(){
   buildQueue();
   game.state='playing';
-  game.index=0; game.score=0; game.correctCount=0; game.answered=0;
-  game.battery=70; game.solarHarvested=0;
-  game.startTime=performance.now(); game.missionMs=0;
-  game._triagePrompted=false;
-  game._patientStart=performance.now();
+  game.index=0; game.score=0; game.correctCount=0; game.answered=0; game.qaHits=0;
+  game.battery=75; game.solarHarvested=0;
+  game.ambient=26; game.calibBaseline=26;
+  game.startTime=performance.now(); game._patientStart=performance.now();
+  oledMsgs.length=0; oledCur=null;
+  speechQueue.length=0; speaking=false;
+  if('speechSynthesis' in window) window.speechSynthesis.cancel();
   document.getElementById('scoreVal').textContent='0';
   document.getElementById('summaryModal').classList.add('hidden');
   document.getElementById('introModal').classList.add('hidden');
   loadPatient();
   ensureAudio();
   beep(700,.1); setTimeout(()=>beep(990,.14),120);
-  speak('Misión iniciada. Bienvenido, operador de la estación VITAL.');
+  say('Guardia médica iniciada. Bienvenido, operador de la estación VITAL.');
 }
 function finishMission(){
   game.state='summary';
-  game.missionMs = performance.now()-game.startTime;
+  const ms = performance.now()-game.startTime;
   const acc = game.answered ? Math.round(game.correctCount/game.answered*100) : 0;
   document.getElementById('sumScore').textContent = game.score;
   document.getElementById('sumAcc').textContent = acc+'%';
   document.getElementById('sumPatients').textContent = game.correctCount+' / '+QUEUE_SIZE;
-  document.getElementById('sumTime').textContent = fmtTime(game.missionMs);
+  document.getElementById('sumQA').textContent = game.qaHits+'/'+(QUEUE_SIZE*3);
+  document.getElementById('sumTime').textContent = fmtTime(ms);
   document.getElementById('sumSolar').textContent = (game.solarHarvested*0.35).toFixed(1)+' Wh';
-  document.getElementById('sumBattery').textContent = Math.round(game.battery)+'%';
-  const rank = acc>=90 ? '🏆 RANGO: COMANDANTE DE TRIAGE — ejecución impecable'
+  document.getElementById('finalRank').textContent =
+    acc>=90 ? '🏆 RANGO: COMANDANTE DE TRIAGE — ejecución impecable'
     : acc>=70 ? '🩺 RANGO: OPERADOR CONFIABLE — buen trabajo de campo'
     : '⚠ RANGO: APRENDIZ — repasa los protocolos y reintenta';
-  document.getElementById('finalRank').textContent = rank;
   document.getElementById('summaryModal').classList.remove('hidden');
-  speak('Misión finalizada. Informe de resultados disponible en pantalla.');
+  say('Guardia finalizada. Informe de resultados disponible en pantalla.');
 }
 function fmtTime(ms){
   const s = Math.floor(ms/1000);
@@ -1136,241 +1301,307 @@ function fmtTime(ms){
 document.getElementById('startBtn').addEventListener('click', startMission);
 document.getElementById('againBtn').addEventListener('click', startMission);
 document.getElementById('restartBtn').addEventListener('click', ()=>{
-  ensureAudio();
-  if(game.state==='intro') return;
-  startMission();
-  toast('Misión reiniciada');
+  ensureAudio(); if(game.state==='intro') return;
+  startMission(); toast('Guardia reiniciada');
 });
-document.getElementById('helpBtn').addEventListener('click', ()=>{
-  document.getElementById('introModal').classList.remove('hidden');
-});
+document.getElementById('helpBtn').addEventListener('click', ()=>document.getElementById('introModal').classList.remove('hidden'));
 document.getElementById('helpAgainBtn').addEventListener('click', ()=>{
   document.getElementById('summaryModal').classList.add('hidden');
   document.getElementById('introModal').classList.remove('hidden');
 });
-
-/* Toasts */
 function toast(msg, type=''){
-  const wrap = document.getElementById('toastWrap');
   const el = document.createElement('div');
-  el.className = 'toast ' + type;
-  el.textContent = msg;
-  wrap.appendChild(el);
-  setTimeout(()=>el.remove(), 3700);
+  el.className='toast '+type; el.textContent=msg;
+  document.getElementById('toastWrap').appendChild(el);
+  setTimeout(()=>el.remove(), 3900);
 }
 
 /* ============================================================
-   8. OLED: RENDER FOSFORO VERDE-CIAN
+   8. OLED: RENDER FOSFORO VERDE-CIAN + COLA DE MENSAJES
 ============================================================ */
 const waveData = new Array(80).fill(0);
 let micBars = new Array(28).fill(4);
+function wrapLines(g, text, maxChars){
+  const words = text.split(' '); const lines=[]; let line='';
+  for(const w of words){
+    if((line+' '+w).trim().length > maxChars){ lines.push(line.trim()); line=w; }
+    else line += ' '+w;
+  }
+  if(line.trim()) lines.push(line.trim());
+  return lines.slice(0,2);
+}
 function drawOLED(now){
   const g = octx;
-  g.fillStyle = '#03140f';
-  g.fillRect(0,0,512,256);
-  g.strokeStyle = 'rgba(53,240,208,.35)';
-  g.lineWidth = 3;
-  g.strokeRect(6,6,500,244);
+  g.fillStyle='#03140f'; g.fillRect(0,0,512,256);
+  g.strokeStyle='rgba(53,240,208,.35)'; g.lineWidth=3; g.strokeRect(6,6,500,244);
+  g.textBaseline='alphabetic';
 
-  g.fillStyle = '#46ffd2';
-  g.font = 'bold 20px "Courier New", monospace';
-  g.textBaseline = 'alphabetic';
-  const p = currentPatient();
-  const header = game.state==='intro' ? 'V.I.T.A.L  EN ESPERA' : `V.I.T.A.L  PACIENTE: ${p.id}`;
-  g.fillText(header, 18, 32);
-  g.fillStyle = 'rgba(70,255,210,.65)';
-  g.font = '13px "Courier New", monospace';
-  g.fillText(game.state==='intro' ? 'SISTEMA INACTIVO' : `TRIAJE ${game.index+1}/${QUEUE_SIZE}`, 360, 32);
+  g.fillStyle='#46ffd2'; g.font='bold 19px "Courier New", monospace';
+  const p = game.state==='intro' ? null : cur();
+  g.fillText(game.state==='intro' ? 'V.I.T.A.L  EN ESPERA' : `V.I.T.A.L  PACIENTE: ${p.id}`, 18, 30);
+  g.fillStyle='rgba(70,255,210,.65)'; g.font='12px "Courier New", monospace';
+  g.fillText(game.state==='intro' ? 'CARPA MEDICA DE CAMPAÑA' : `TRIAJE ${game.index+1}/${QUEUE_SIZE}`, 366, 30);
 
   if(game.state==='intro'){
-    g.fillStyle='#46ffd2'; g.font='bold 22px "Courier New", monospace';
-    g.fillText('> INICIAR MISION', 40, 110);
-    g.font='15px "Courier New", monospace'; g.fillStyle='rgba(70,255,210,.8)';
-    g.fillText('Presiona INICIAR MISIÓN en el panel', 40, 145);
-    g.fillText('para desplegar el puesto de triaje.', 40, 168);
+    g.fillStyle='#46ffd2'; g.font='bold 21px "Courier New", monospace';
+    g.fillText('> INICIAR GUARDIA', 40, 108);
+    g.font='14px "Courier New", monospace'; g.fillStyle='rgba(70,255,210,.8)';
+    g.fillText('El radar detectara pacientes en', 40, 142);
+    g.fillText('cuando se acerquen a la carpa.', 40, 162);
   } else {
-    // ----- Radar / respiración -----
-    g.fillStyle='rgba(70,255,210,.7)'; g.font='bold 14px "Courier New", monospace';
-    g.fillText('RADAR mmWAVE', 18, 58);
-    if(game.steps.radar || game.measuring.radar){
-      const target = p.breath;
-      const phase = now*0.004*(target/14);
-      waveData.shift();
-      waveData.push(Math.sin(phase)*26 + (Math.random()-0.5)*3);
+    /* Radar / respiración */
+    g.fillStyle='rgba(70,255,210,.7)'; g.font='bold 13px "Courier New", monospace';
+    g.fillText('RADAR mmWAVE', 18, 54);
+    if(game.approach.active){
+      const t = THREE.MathUtils.clamp((now-game.approach.start)/3500, 0, 1);
+      const d = (3.2*(1-t) + p.distance*t);
       g.strokeStyle='#46ffd2'; g.lineWidth=2; g.beginPath();
-      for(let i=0;i<waveData.length;i++){
-        const x = 18 + i*4.4, y = 96 + waveData[i];
+      for(let i=0;i<80;i++){
+        const x = 18+i*4.4, y = 82 + Math.sin(now*.004 + i*.35)*6*(1-t) + Math.sin(now*.006+i*.2)*10*t;
         i?g.lineTo(x,y):g.moveTo(x,y);
       }
       g.stroke();
-      g.fillStyle='#46ffd2'; g.font='bold 15px "Courier New", monospace';
-      if(game.measuring.radar){
-        g.fillText('Escaneando...', 240, 92);
-      } else {
-        g.fillText(`DIST ${p.distance}m  RESP ${target}rpm`, 220, 92);
-      }
+      g.fillStyle='#46ffd2'; g.font='bold 14px "Courier New", monospace';
+      g.fillText(`ACERCANDOSE... ${d.toFixed(2)}m`, 215, 80);
+    } else if(game.steps.radar || game.measuring.radar){
+      const target = p.breath;
+      waveData.shift();
+      waveData.push(Math.sin(now*0.004*(target/14))*24 + (Math.random()-0.5)*3);
+      g.strokeStyle='#46ffd2'; g.lineWidth=2; g.beginPath();
+      for(let i=0;i<80;i++){ const x=18+i*4.4, y=82+waveData[i]; i?g.lineTo(x,y):g.moveTo(x,y); }
+      g.stroke();
+      g.fillStyle='#46ffd2'; g.font='bold 14px "Courier New", monospace';
+      g.fillText(game.measuring.radar ? 'REESCANEANDO...' : `DIST ${p.distance}m  RESP ${target}rpm`, 210, 80);
     } else {
       g.fillStyle='rgba(70,255,210,.4)'; g.font='13px "Courier New", monospace';
-      g.fillText('-- sin medición --', 24, 96);
+      g.fillText('-- en espera --', 24, 82);
     }
 
-    // ----- IR / temperatura -----
-    g.fillStyle='rgba(70,255,210,.7)'; g.font='bold 14px "Courier New", monospace';
-    g.fillText('SENSOR IR', 18, 138);
+    /* IR */
+    g.fillStyle='rgba(70,255,210,.7)'; g.font='bold 13px "Courier New", monospace';
+    g.fillText('SENSOR IR', 18, 118);
     if(game.measuring.ir){
-      const prog = 1 - (game.measuring.ir-now)/2100;
+      const prog = 1-(game.measuring.ir-now)/2100;
       const v = 35 + (p.temp-35)*THREE.MathUtils.clamp(prog,0,1);
-      g.fillStyle='#46ffd2'; g.font='bold 30px "Courier New", monospace';
-      g.fillText(v.toFixed(1)+' °C', 24, 172);
+      g.fillStyle='#46ffd2'; g.font='bold 27px "Courier New", monospace';
+      g.fillText(v.toFixed(1)+' C', 24, 148);
     } else if(game.steps.ir){
-      g.fillStyle = p.temp>=38.5 ? '#ff6b78' : p.temp>=37.8 ? '#ffd23e' : '#46ffd2';
-      g.font='bold 30px "Courier New", monospace';
-      g.fillText(p.temp.toFixed(1)+' °C', 24, 172);
+      const mt = game.readings.measuredTemp;
+      g.fillStyle = mt>=38.5 ? '#ff6b78' : mt>=37.8 ? '#ffd23e' : '#46ffd2';
+      g.font='bold 27px "Courier New", monospace';
+      g.fillText(mt.toFixed(1)+' C', 24, 148);
     } else {
       g.fillStyle='rgba(70,255,210,.4)'; g.font='13px "Courier New", monospace';
-      g.fillText('-- °C --', 24, 170);
+      g.fillText('-- C --', 24, 146);
     }
 
-    // ----- Voz / SpO2 -----
-    g.fillStyle='rgba(70,255,210,.7)'; g.font='bold 14px "Courier New", monospace';
-    g.fillText('VOZ / SpO2', 270, 138);
-    if(game.measuring.mic){
-      micBars = micBars.map(()=> 6 + Math.random()*30);
-    } else if(game.steps.mic){
-      micBars = micBars.map(v=> v + (4-v)*0.1);
-    }
-    for(let i=0;i<micBars.length;i++){
-      const h = game.steps.mic && !game.measuring.mic ? 5 : micBars[i];
-      g.fillStyle = game.measuring.mic ? '#7af9e2' : 'rgba(70,255,210,.55)';
-      g.fillRect(272+i*7.4, 168-h, 5, h);
+    /* Voz / disnea (sin SpO2) */
+    g.fillStyle='rgba(70,255,210,.7)'; g.font='bold 13px "Courier New", monospace';
+    g.fillText('VOZ / DISNEA', 268, 118);
+    if(game.qa.analyzing) micBars = micBars.map(()=> 6+Math.random()*30);
+    else if(game.steps.mic) micBars = micBars.map(v=>v+(4-v)*.1);
+    for(let i=0;i<28;i++){
+      const h = (game.steps.mic && !game.qa.analyzing) ? 5 : micBars[i];
+      g.fillStyle = game.qa.analyzing ? '#7af9e2' : 'rgba(70,255,210,.55)';
+      g.fillRect(270+i*7.4, 146-h, 5, h);
     }
     if(game.steps.mic){
-      g.fillStyle='#46ffd2'; g.font='bold 17px "Courier New", monospace';
-      g.fillText(`SpO2 ${p.spo2}%`, 272, 196);
+      g.fillStyle='#46ffd2'; g.font='bold 14px "Courier New", monospace';
+      g.fillText(`${game.readings.dyspnea.toUpperCase()} ${game.readings.confidence}%`, 270, 168);
     }
 
-    // ----- Estado de triaje -----
-    g.font='bold 15px "Courier New", monospace';
+    /* Estado de triaje */
+    g.font='bold 14px "Courier New", monospace';
     if(game.triageDone){
       const c = p.correct;
       g.fillStyle = c==='rojo' ? '#ff6b78' : c==='amarillo' ? '#ffd23e' : '#46ffd2';
-      g.fillText('TRIAJE: '+c.toUpperCase()+'  '+(c==='rojo'?'ALERTA CRITICA':c==='amarillo'?'MONITOREO':'ESTABLE'), 18, 218);
+      g.fillText('TRIAJE: '+c.toUpperCase()+'  '+(c==='rojo'?'ALERTA CRITICA':c==='amarillo'?'MONITOREO':'ESTABLE'), 18, 192);
     } else {
       g.fillStyle='rgba(70,255,210,.55)';
-      g.fillText('Esperando decision de triaje...', 18, 218);
+      g.fillText('Esperando decision de triaje...', 18, 192);
     }
   }
 
-  // ----- Pie: batería + LED -----
+  /* Zona de mensajes (cola, mínimo 3,5 s) — banda de dos líneas */
+  g.fillStyle='rgba(53,240,208,.12)'; g.fillRect(14, 198, 484, 30);
+  if(oledCur){
+    g.fillStyle='#a8ffe9'; g.font='11.5px "Courier New", monospace';
+    const lines = wrapLines(g, oledCur.text, 68);
+    g.fillText(lines[0]||'', 20, 211);
+    if(lines[1]) g.fillText(lines[1], 20, 224);
+  }
+
+  /* Pie: batería · ambiente · ruido · LED */
   g.strokeStyle='rgba(70,255,210,.7)'; g.lineWidth=2;
-  g.strokeRect(392, 222, 70, 20);
-  g.fillRect(462, 228, 6, 8);
+  g.strokeRect(392, 232, 70, 17); g.fillRect(462, 237, 6, 7);
   const bw = Math.max(0, Math.min(64, game.battery/100*64));
   g.fillStyle = game.battery<20 ? '#ff6b78' : '#46ffd2';
-  g.fillRect(395, 225, bw, 14);
-  g.fillStyle='#46ffd2'; g.font='bold 13px "Courier New", monospace';
-  g.fillText(Math.round(game.battery)+'%', 404, 237);
+  g.fillRect(395, 235, bw, 11);
+  g.fillStyle='#46ffd2'; g.font='bold 12px "Courier New", monospace';
+  g.fillText(Math.round(game.battery)+'%', 404, 245);
+  g.fillText(`CARPA ${game.ambient.toFixed(0)}C`, 18, 245);
+  g.fillStyle = effectiveNoise()>.55 ? '#ff9d3c' : 'rgba(70,255,210,.6)';
+  g.fillText(effectiveNoise()>.55 ? 'RUIDO: ALTO' : noiseFilterOn ? 'RUIDO: FILTRADO' : 'RUIDO: OK', 130, 245);
   g.fillStyle = game.activeLed==='rojo' ? '#ff6b78' : game.activeLed==='amarillo' ? '#ffd23e' : game.activeLed ? '#46ffd2' : 'rgba(70,255,210,.5)';
-  g.fillText('LED: '+(game.activeLed ? game.activeLed.toUpperCase() : '---'), 18, 238);
+  g.fillText('LED: '+(game.activeLed ? game.activeLed.toUpperCase() : '---'), 268, 245);
 
-  // líneas de escaneo
   g.fillStyle='rgba(0,0,0,.16)';
   for(let y=0;y<256;y+=4) g.fillRect(0,y,512,1);
   oledTex.needsUpdate = true;
 }
 
 /* ============================================================
-   9. BUCLE PRINCIPAL
+   9. DINÁMICAS AMBIENTALES · SOL · BATERÍA
 ============================================================ */
-const clock = new THREE.Clock();
-const tmpV1 = new THREE.Vector3(), tmpV2 = new THREE.Vector3(), tmpN = new THREE.Vector3();
-let oledFrame = 0;
+function updateEnvironment(dt, now){
+  /* Temperatura de la carpa: variación lenta + picos de calor */
+  const t = now/1000;
+  game.ambient = 26 + Math.sin(t*0.03)*2.6 + Math.sin(t*0.011)*1.6;
+  if(now > game._nextHeat){
+    game._heatUntil = now + 14000 + Math.random()*8000;
+    game._nextHeat = now + 38000 + Math.random()*18000;
+  }
+  if(now < (game._heatUntil||0)) game.ambient += 4.2;
+  game.ambient = round1(game.ambient);
+  document.getElementById('ambientVal').textContent = game.ambient.toFixed(0)+' °C';
+  document.getElementById('chipHeat').classList.toggle('show',
+    (game.state==='playing' || game.state==='off') && Math.abs(game.ambient-game.calibBaseline)>4);
+
+  /* Picos de ruido del generador (planificados con el mismo reloj que el juego) */
+  if(audioCtx){
+    const tSec = now/1000;
+    if(tSec > nextNoiseSpikeT && tSec > noiseSpikeEndT){
+      noiseSpikeEndT = tSec + 9 + Math.random()*6;
+      nextNoiseSpikeT = tSec + 24 + Math.random()*14;
+    }
+    const inSpike = tSec < noiseSpikeEndT;
+    const target = inSpike ? 1 : 0;
+    noiseLevel += (target-noiseLevel)*Math.min(1, dt*2.4);
+    if(noiseGain){
+      const g = noiseLevel * (noiseFilterOn ? .14 : 1) * (.85 + .15*Math.sin(tSec*9));
+      noiseGain.gain.setTargetAtTime(g*.13, audioCtx.currentTime, .1);
+    }
+  }
+  document.getElementById('chipNoise').classList.toggle('show',
+    (game.state==='playing' || game.state==='off') && effectiveNoise()>.55);
+  document.getElementById('noiseBtn').classList.toggle('on', noiseFilterOn);
+}
 
 function updateSolar(dt){
-  // órbita del sol
-  sunAngle += dt * 0.075;
+  sunAngle += dt * (Math.PI*2/SUN_PERIOD);
   sunGroup.position.set(
     Math.cos(sunAngle)*SUN_RADIUS,
-    3.6 + Math.sin(sunAngle*0.55)*1.6,
-    Math.sin(sunAngle)*SUN_RADIUS
+    3.4 + Math.sin(sunAngle*0.7)*2.2,
+    6.2 + Math.sin(sunAngle)*3.2
   );
-  sunLight.position.copy(sunGroup.position);
+  sunLight.position.copy(sunGroup.position).multiplyScalar(.85);
+  /* Rayo que entra por la apertura de la carpa (giro horizontal del pivote) */
+  sunBeamPivot.rotation.y = -sunAngle*0.55;
+  beamMat.opacity = 0.06 + 0.08*Math.max(0, Math.sin(sunAngle));
 
-  let totalAlign = 0;
+  let totalEff = 0;
+  const dir = new THREE.Vector3();
+  const wingNormal = new THREE.Vector3();
+  const wingPos = new THREE.Vector3();
   for(const wing of [wingL, wingR]){
-    // el propio grupo tilt orienta su eje +Z hacia la cara frontal del panel
-    const normalSrc = wing.userData.tilt;
-    normalSrc.getWorldDirection(tmpN);
-    tmpV1.copy(sunGroup.position).sub(normalSrc.getWorldPosition(tmpV2)).normalize();
-    const align = Math.max(0, tmpN.dot(tmpV1));
+    wing.userData.tilt.getWorldDirection(wingNormal);
+    wing.userData.tilt.getWorldPosition(wingPos);
+    dir.copy(sunGroup.position).sub(wingPos).normalize();
+    const align = Math.max(0, wingNormal.dot(dir));
+    const eff = align*align; // carga estrictamente angular y no lineal
     wing.userData.alignment = align;
-    wing.userData.cellMat.emissiveIntensity = 0.32 + align*1.6;
-    totalAlign += align;
+    wing.userData.cellMat.emissiveIntensity = .32 + eff*1.7;
+    totalEff += eff;
     if((game.state==='playing' || game.state==='off') && game.battery<100){
-      const charge = align * 5.2 * dt;
+      const charge = eff * 2.1 * dt; // dos alas perfectas → ~4,2 %/s
       game.battery = Math.min(100, game.battery + charge);
       game.solarHarvested += charge;
     }
   }
-  const pct = Math.round(totalAlign/2*100);
-  document.getElementById('alignFill').style.width = pct+'%';
-  return pct;
+  document.getElementById('alignFill').style.width = Math.round(totalEff/2*100)+'%';
 }
-
 function updateBattery(dt){
   if(game.state!=='playing') return;
-  game.battery = Math.max(0, game.battery - dt*1.15);
-  if(game.battery <= 0 && game.state!=='off'){
+  game.battery = Math.max(0, game.battery - dt*.8);
+  if(game.battery<=0 && game.state!=='off'){
     game.state='off';
     toast('¡Sistema apagado! Recarga con las alas solares (mín. 12%).','crit');
-    speak('Batería agotada. Reposicione los paneles solares.');
+    say('Batería agotada. Reposicione los paneles solares hacia el sol.');
   }
-  if(game.state==='off' && game.battery >= 12){
+  if(game.state==='off' && game.battery>=12){
     game.state='playing';
-    toast('Energía restablecida — misión en curso.');
-    speak('Energía restablecida. Continuamos con el triaje.');
+    toast('Energía restablecida — guardia en curso.');
+    say('Energía restablecida. Continuamos con el triaje.');
   }
 }
-
 function updateLEDs(now){
   for(const k of Object.keys(leds)){
-    const L = leds[k];
     if(k===game.activeLed){
-      const p = 1.9 + Math.sin(now*0.006)*0.9;
-      L.bulb.material.emissiveIntensity = p;
-      L.light.intensity = 1.1 + Math.sin(now*0.006)*0.5;
+      leds[k].bulb.material.emissiveIntensity = 1.9 + Math.sin(now*.006)*.9;
+      leds[k].light.intensity = 1.1 + Math.sin(now*.006)*.5;
     }
   }
 }
-
 function updateHUD(now){
   document.getElementById('batteryFill').style.width = game.battery+'%';
   document.getElementById('batteryPct').textContent = Math.round(game.battery)+'%';
   const fill = document.getElementById('batteryFill');
-  fill.style.background = game.battery<20
-    ? 'linear-gradient(90deg,#8a1f2b,var(--red))'
-    : game.battery<45
-      ? 'linear-gradient(90deg,#a07a1c,var(--yellow))'
-      : 'linear-gradient(90deg,#1fae7d,var(--green))';
-  if(game.state==='playing' || game.state==='off'){
+  fill.style.background = game.battery<20 ? 'linear-gradient(90deg,#8a1f2b,var(--red))'
+    : game.battery<45 ? 'linear-gradient(90deg,#a07a1c,var(--yellow))'
+    : 'linear-gradient(90deg,#1fae7d,var(--green))';
+  if(game.state==='playing' || game.state==='off')
     document.getElementById('timeVal').textContent = fmtTime(now-game.startTime);
-  }
 }
 
+/* ============================================================
+   10. BUCLE PRINCIPAL
+============================================================ */
+const clock = new THREE.Clock();
+let oledFrame = 0;
+game._nextHeat = performance.now() + 22000;
+game._heatUntil = 0;
+
 renderer.setAnimationLoop(()=>{
-  const dt = Math.min(clock.getDelta(), 0.05);
+  const dt = Math.min(clock.getDelta(), .05);
   const now = performance.now();
 
   if(!renderer.xr.isPresenting) controls.update();
-  particles.rotation.y += dt*0.02;
+  dust.rotation.y += dt*.015;
+
+  updateEnvironment(dt, now);
   updateSolar(dt);
   updateBattery(dt);
   updateLEDs(now);
   updateXRWingDrag();
-  if(game.state==='playing' || game.state==='off') checkMeasurements(now);
+
+  if(game.state==='playing' || game.state==='off'){
+    /* Aproximación automática del radar */
+    if(game.approach.active && now-game.approach.start >= 3500) completeProximity(now);
+    /* Finalización de mediciones */
+    if(game.measuring.radar && now>=game.measuring.radar){
+      game.measuring.radar=0;
+      const p = cur();
+      game.steps.radar = true;
+      document.getElementById('step-radar').className='done';
+      document.getElementById('val-radar').textContent = `${p.distance} m · ${p.breath} rpm`;
+    }
+    if(game.measuring.ir && now>=game.measuring.ir) finishIR(now);
+    if(game.qa.analyzing && now>=game.qa.analyzeEnd) finishAcousticAnalysis();
+    /* Habilitar triaje cuando las tres evaluaciones están completas */
+    if(game.steps.radar && game.steps.ir && game.steps.mic && !game.triageDone
+       && document.querySelector('.tbtn:disabled')){
+      document.querySelectorAll('.tbtn').forEach(b=>b.disabled=false);
+      if(!game._triagePrompted){
+        game._triagePrompted = true;
+        say('Evaluación completa. Seleccione el nivel de triaje.');
+      }
+    }
+    if(game.triageDone) game._triagePrompted = false;
+  }
+
+  updateMessageQueue(now);
   if((oledFrame++ % 2)===0) drawOLED(now);
   updateHUD(now);
-
   renderer.render(scene, camera);
 });
 
