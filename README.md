@@ -1,6 +1,6 @@
 # VITAL-MR_Game
 
-**V.I.T.A.L. — Experiencia Dual Arcade y Realidad Mixta (v2)**
+**V.I.T.A.L. — Experiencia Dual Arcade y Realidad Mixta (v3)**
 
 Aplicación interactiva 3D / WebXR en un único archivo (`index.html`) para el puesto de
 triaje médico sin contacto **V.I.T.A.L.** (*Voice Integrated Triage & Assessment Local*),
@@ -48,6 +48,25 @@ la entrada siguiendo la órbita solar.
 Toda la interfaz, diálogos, voces y HUD están en español. El dispositivo y el entorno se
 generan de forma procedimental con primitivas básicas de Three.js
 (cajas, cilindros, toroides, círculos, conos y grupos).
+
+## Mejoras de soporte VR/MR (v3)
+
+- **Raycasting de controladores WebXR completo:** un `THREE.Raycaster` anclado a la pose
+  de cada `XRInputSource` (eje -Z) permite disparar con el gatillo todos los elementos 3D:
+  sensores, LEDs de triaje, botones Anular Ruido/Calibrar, alas solares y las tarjetas 3D
+  del Q&A conversacional (con resalte por hover).
+- **Bucle de triaje sin bloqueos:** el LED físico seleccionado (ratón o gatillo XR) registra
+  la decisión, suena una campana de confirmación, el OLED muestra **“TRIAJE GUARDADO”**
+  durante 2,5 s con diagnóstico y cuenta regresiva, y la cola avanza sola al siguiente
+  paciente (botón 3D/HUD “Siguiente Paciente” para omitir la espera).
+- **Audio en VR:** `audioCtx.resume()` explícito al iniciar la sesión y en el primer gatillo,
+  más cebado de `speechSynthesis` dentro del gesto de usuario para que la voz sintetizada y
+  los pitos se escuchen dentro del visor.
+- **Posición ergonómica MR:** la estación se coloca a 1,3 m del usuario
+  (`(0, -0.15, -1.3)`, escala 0,42), a la altura del pecho.
+- **Etiquetas 3D** flotantes sobre los botones físicos naranja (ANULAR RUIDO) y azul
+  (CALIBRAR TEMP); el botón HUD de entrada a MR es un 25% más grande con contorno neón
+  pulsante.
 
 ## Arquitectura
 
