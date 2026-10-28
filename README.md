@@ -66,7 +66,9 @@ generan de forma procedimental con primitivas básicas de Three.js
   (`(0, -0.15, -1.3)`, escala 0,42), a la altura del pecho.
 - **Etiquetas 3D** flotantes sobre los botones físicos naranja (ANULAR RUIDO) y azul
   (CALIBRAR TEMP); el botón HUD de entrada a MR es un 25% más grande con contorno neón
-  pulsante.
+  pulsante. Los botones superiores se separaron a ±0,62 y sus etiquetas se compactaron
+  (plano 0,64 × 0,34, fuente 34 px) con hueco limpio de 0,60 u entre cajas, elevadas a
+  y=1,94 y adelantadas a z=0,26 para no clipar con el chasis.
 
 ## Arquitectura
 
